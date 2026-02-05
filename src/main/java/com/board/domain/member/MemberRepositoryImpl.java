@@ -43,4 +43,8 @@ public class MemberRepositoryImpl implements MemberRepository {
     public List<Member> findAll() {
         return new ArrayList<>(store.values());
     }
+
+    public void clearStore() {
+        store.clear();
+    }
 }
