@@ -5,11 +5,18 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+/**
+ * 회원 리포지토리의 메모리 내 구현체입니다.
+ * {@link MemberRepository} 인터페이스를 구현합니다.
+ */
 @Slf4j
 @Repository
 public class MemberRepositoryImpl implements MemberRepository {
 
+    /** 회원을 저장하기 위한 메모리 내 임시 저장소입니다. Key는 회원의 ID입니다. */
     private static Map<Long,Member> store = new HashMap<>();
+
+    /** 회원 ID 생성을 위한 시퀀스입니다. */
     private static long sequence = 0L;
 
     @Override
