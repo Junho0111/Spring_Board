@@ -21,8 +21,7 @@ public class Post {
     private String author;
 
 
-    public Post(Long id, String title, String content, String author) {
-        this.id = id;
+    public Post(String title, String content, String author) {
         this.title = title;
         this.content = content;
         this.author = author;
