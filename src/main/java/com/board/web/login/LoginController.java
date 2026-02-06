@@ -54,7 +54,7 @@ public class LoginController {
             return "login/loginForm";
         }
 
-        log.info("login: {}", loginMember);
+        log.info("LOGIN [ID={}, LoginID={}, Name={}]", loginMember.getId(), loginMember.getLoginId(), loginMember.getName());
 
         // 로그인 성공 처리
         // 세션이 있으면 있는 세션 반환, 없으면 신규 세션 생성
@@ -79,7 +79,7 @@ public class LoginController {
         if (session != null) {
             Member logoutMember = (Member) session.getAttribute("loginMember");
             session.invalidate();
-            log.info("logout: {}", logoutMember);
+            log.info("LOGOUT [ID={}, LoginID={}, Name={}]", logoutMember.getId(), logoutMember.getLoginId(), logoutMember.getName());
         }
 
         return "redirect:/";
