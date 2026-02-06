@@ -48,12 +48,13 @@ public class LoginController {
         }
 
         Member loginMember = loginService.login(loginForm.getLoginId(), loginForm.getPassword());
-        log.info("login: {}", loginMember);
 
         if (loginMember == null) {
             bindingResult.reject("loginFail", "아이디 또는 비밀번호가 맞지 않습니다.");
             return "login/loginForm";
         }
+
+        log.info("login: {}", loginMember);
 
         // 로그인 성공 처리
         // 세션이 있으면 있는 세션 반환, 없으면 신규 세션 생성
@@ -76,7 +77,9 @@ public class LoginController {
         HttpSession session = request.getSession(false);
 
         if (session != null) {
+            Member logoutMember = (Member) session.getAttribute("loginMember");
             session.invalidate();
+            log.info("logout: {}", logoutMember);
         }
 
         return "redirect:/";
