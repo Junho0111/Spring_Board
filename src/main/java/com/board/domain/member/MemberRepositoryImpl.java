@@ -22,7 +22,7 @@ public class MemberRepositoryImpl implements MemberRepository {
     @Override
     public Member save(Member member) {
         member.setId(++sequence);
-        log.info("save: member={}", member);
+        log.info("save: {}", member);
         store.put(member.getId(), member);
         return member;
     }
