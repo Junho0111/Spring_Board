@@ -14,7 +14,7 @@ import java.util.*;
 public class MemberRepositoryImpl implements MemberRepository {
 
     /** 회원을 저장하기 위한 메모리 내 임시 저장소입니다. Key는 회원의 ID입니다. */
-    private final static Map<Long,Member> store = new HashMap<>();
+    private static final Map<Long,Member> store = new HashMap<>();
 
     /** 회원 ID 생성을 위한 시퀀스입니다. */
     private static long sequence = 0L;
