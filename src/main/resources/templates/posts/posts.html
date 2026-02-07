@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link th:href="@{/css/bootstrap.min.css}" href="../css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container { max-width: 800px; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="py-5 text-center">
+        <h2>게시물 목록</h2>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <p th:text="${successMessage}"></p>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <button class="btn btn-primary float-end"
+                    onclick="location.href='add'"
+                    th:onclick="|location.href='@{/posts/add}'|" type="button">게시물 등록
+            </button>
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <div>
+        <table class="table table-striped">
+
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>제목</th>
+                <th>작성자</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="post : ${posts}">
+                <td><a th:href="@{|/posts/${post.id}|}" th:text="${post.id}">1</a></td>
+                <td><a th:href="@{|/posts/${post.id}|}" th:text="${post.title}">제목</a></td>
+                <td th:text="${post.author}">작성자</td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+
+</div>
+</body>
+</html>
