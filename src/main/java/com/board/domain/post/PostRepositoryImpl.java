@@ -39,7 +39,7 @@ public class PostRepositoryImpl implements PostRepository {
     public Post save(Post post) {
         post.setId(++sequence); // ID 할당 및 증가
         store.put(post.getId(), post); // Map에 저장
-        log.info("SAVE [ID={}, Author={}]", post.getId(), post.getAuthor());
+        log.info("SAVE [ID={}, Author={}, Title={}]", post.getId(), post.getAuthor(), post.getTitle());
         return post;
     }
 
@@ -56,7 +56,7 @@ public class PostRepositoryImpl implements PostRepository {
         if (findPost != null) {
             findPost.setTitle(newPost.getTitle());
             findPost.setContent(newPost.getContent());
-            log.info("UPDATED [ID={}, Title={}, Content={}]", id, findPost.getTitle(), findPost.getContent());
+            log.info("UPDATED [ID={}, Title={}]", id, findPost.getTitle());
         } else {
             log.info("UPDATE[FAILE] ID={} NOT FOUND.", id);
         }
@@ -69,9 +69,9 @@ public class PostRepositoryImpl implements PostRepository {
      */
     @Override
     public void delete(Long id) {
-        String author = store.get(id).getAuthor();
+        Post deletePost = store.get(id);
         store.remove(id);
-        log.info("DELETED [ID={}, Author={}]", id, author);
+        log.info("DELETED [ID={}, Author={}, Title={}]", id, deletePost.getAuthor(), deletePost.getTitle());
     }
 
     /**
