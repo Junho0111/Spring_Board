@@ -137,6 +137,7 @@ public class PostController {
         postForm.setTitle(post.getTitle());
         postForm.setContent(post.getContent());
         model.addAttribute("post", postForm);
+        model.addAttribute("postId", postId);
 
         return "posts/editForm";
     }
@@ -150,10 +151,11 @@ public class PostController {
      * @param form 게시물 편집을 위한 폼 데이터 {@link PostForm}
      * @param bindingResult 유효성 검증 결과
      * @param redirectAttributes 리다이렉트 시 사용할 속성
+     * @param loginMember 세션에서 가져온 로그인 회원 객체 ({@code loginMember}). 게시물 수정 권한 검증에 사용.
      * @return 유효성 검증 실패 시 게시물 편집 폼으로 돌아가고, 성공 시 편집된 게시물 상세 페이지로 리다이렉트
      */
     @PostMapping("/{postId}/edit")
-    public String edit(@PathVariable("postId") Long postId, @Validated @ModelAttribute("post") PostForm form, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String edit(@PathVariable("postId") Long postId, @Validated @ModelAttribute("post") PostForm form, BindingResult bindingResult, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
             return "posts/editForm";
@@ -163,6 +165,13 @@ public class PostController {
 
         if (post == null) {
             log.warn("편집 요청된 게시물 ID[{}]를 찾을 수 없습니다.", postId);
+
+            return "redirect:/posts";
+        }
+
+        if (!post.getAuthor().equals(loginMember.getName())) {
+            log.warn("게시물[{}] ID[{}]에 대한 수정 권한 없음. 요청자: {}, 작성자: {}",post.getTitle(), postId, loginMember.getName(), post.getAuthor());
+            redirectAttributes.addFlashAttribute("errorMessage", "이 게시물을 수정할 권한이 없습니다.");
 
             return "redirect:/posts";
         }
@@ -195,7 +204,7 @@ public class PostController {
         }
 
         if (!post.getAuthor().equals(loginMember.getName())) {
-            log.warn("게시물 ID[{}]에 대한 삭제 권한 없음. 요청자: {}, 작성자: {}", postId, loginMember.getName(), post.getAuthor());
+            log.warn("게시물[{}] ID[{}]에 대한 삭제 권한 없음. 요청자: {}, 작성자: {}",post.getTitle(), postId, loginMember.getName(), post.getAuthor());
             redirectAttributes.addFlashAttribute("errorMessage", "이 게시물을 삭제할 권한이 없습니다.");
             return "redirect:/posts/{postId}";
         }
