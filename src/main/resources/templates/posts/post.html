@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link th:href="@{/css/bootstrap.min.css}" href="../../css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container { max-width: 800px; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="py-5 text-center">
+        <h2 th:text="${post.title}">게시물 상세</h2>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <p th:text="${successMessage}"></p>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <div>
+        <label for="postId">게시물 ID</label>
+        <input type="text" id="postId" th:value="${postId}" class="form-control" readonly>
+    </div>
+
+    <div>
+        <label for="author">작성자</label>
+        <input type="text" id="author" th:value="${post.author}" class="form-control" readonly>
+    </div>
+
+    <div>
+        <label for="title">제목</label>
+        <input type="text" id="title" th:value="${post.title}" class="form-control" readonly>
+    </div>
+
+    <div>
+        <label for="content">내용</label>
+        <textarea id="content" th:text="${post.content}" class="form-control" rows="10" readonly></textarea>
+    </div>
+
+    <hr class="my-4">
+
+    <div class="row">
+
+        <div class="col">
+            <button class="w-100 btn btn-primary btn-lg"
+                    th:onclick="|location.href='@{/posts/{postId}/edit(postId=${postId})}'|" type="button">수정
+            </button>
+        </div>
+
+        <div class="col">
+            <form th:action="@{|/posts/${postId}/delete|}" method="post">
+                <button class="w-100 btn btn-danger btn-lg" type="submit"
+                        onclick="return confirm('정말로 이 게시물을 삭제하시겠습니까?');">삭제
+                </button>
+            </form>
+        </div>
+
+        <div class="col">
+            <button class="w-100 btn btn-secondary btn-lg"
+                    th:onclick="|location.href='@{/posts}'|" type="button">목록으로
+            </button>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>
