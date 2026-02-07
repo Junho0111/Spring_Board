@@ -37,8 +37,8 @@ public class PostRepositoryImpl implements PostRepository {
      */
     @Override
     public Post save(Post post) {
-        post.setId(++sequence); // ID 할당 및 증가
-        store.put(post.getId(), post); // Map에 저장
+        post.setId(++sequence);
+        store.put(post.getId(), post);
         log.info("SAVE [ID={}, Author={}, Title={}]", post.getId(), post.getAuthor(), post.getTitle());
         return post;
     }
@@ -48,30 +48,43 @@ public class PostRepositoryImpl implements PostRepository {
      * 현재 구현에서는 제목과 내용만 업데이트합니다.
      *
      * @param id      업데이트할 게시물의 ID
-     * @param newPost 업데이트할 내용을 담은 게시물 객체 (제목, 내용)
+     * @param title 업데이트할 게시물 제목
+     * @param content 업데이트할 게시물 내용
+     * @throws IllegalArgumentException 해당 ID의 게시물이 존재하지 않을 경우 발생
      */
     @Override
-    public void update(Long id, Post newPost) {
+    public void update(Long id, String title, String content) {
         Post findPost = findById(id);
-        if (findPost != null) {
-            findPost.setTitle(newPost.getTitle());
-            findPost.setContent(newPost.getContent());
-            log.info("UPDATED [ID={}, Title={}]", id, findPost.getTitle());
-        } else {
-            log.info("UPDATE[FAILE] ID={} NOT FOUND.", id);
+
+        if (findPost == null) {
+            log.error("UPDATE FAILED: ID {} NOT FOUND", id);
+            throw new IllegalArgumentException("수정 실패: 해당 ID(" + id + ")의 게시물이 존재하지 않습니다.");
         }
+
+        findPost.setTitle(title);
+        findPost.setContent(content);
+        log.info("UPDATED [ID={}, Author={} ,Title={}]", id, findPost.getAuthor(), findPost.getTitle());
     }
 
     /**
      * 지정된 ID의 게시물을 저장소에서 삭제합니다.
      *
      * @param id 삭제할 게시물의 ID
+     * @throws IllegalArgumentException 해당 ID의 게시물이 존재하지 않을 경우 발생
+     * @return 삭제된 게시물 객체
      */
     @Override
-    public void delete(Long id) {
-        Post deletePost = store.get(id);
+    public Post delete(Long id) {
+        Post deletePost = findById(id);
+
+        if (deletePost == null) {
+            log.error("DELETE FAILED: ID {} NOT FOUND", id);
+            throw new IllegalArgumentException("삭제 실패: 해당 ID(" + id + ")의 게시물이 존재하지 않습니다.");
+        }
+
         store.remove(id);
         log.info("DELETED [ID={}, Author={}, Title={}]", id, deletePost.getAuthor(), deletePost.getTitle());
+        return  deletePost;
     }
 
     /**

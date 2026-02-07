@@ -15,15 +15,16 @@ public interface PostRepository {
     /**
      * 지정된 ID의 게시물을 업데이트합니다.
      * @param id 업데이트할 게시물의 ID
-     * @param newPost 업데이트할 내용을 담은 게시물 객체
+     * @param title 업데이트할 게시물 제목
+     * @param content 업데이트할 게시물 내용
      */
-    void update(Long id, Post newPost);
+    void update(Long id, String title, String content);
 
     /**
      * 지정된 ID의 게시물을 삭제합니다.
      * @param id 삭제할 게시물의 ID
      */
-    void delete(Long id);
+    Post delete(Long id);
 
     /**
      * 모든 게시물을 조회합니다.
