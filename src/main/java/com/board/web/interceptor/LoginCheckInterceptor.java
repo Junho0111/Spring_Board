@@ -26,7 +26,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String requestURI = request.getRequestURI();
 
-        log.info("Login Check Interceptor 실행: {}", requestURI);
+        log.info("Login Check Interceptor 실행 [요청 경로={}]", requestURI);
 
         HttpSession session = request.getSession(false);
 
