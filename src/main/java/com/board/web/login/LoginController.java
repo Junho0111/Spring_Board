@@ -24,9 +24,9 @@ public class LoginController {
     private final LoginService loginService;
 
     /**
-     * 로그인 폼을 보여줍니다.
-     * @param loginForm 로그인 폼 데이터를 바인딩할 객체
-     * @return 로그인 폼 뷰 경로
+     * 로그인 폼 뷰를 반환합니다.
+     * @param loginForm 로그인 폼 데이터 바인딩할 객체
+     * @return 로그인 폼 뷰 이름
      */
     @GetMapping("/login")
     public String login(@ModelAttribute("loginForm") LoginForm loginForm ) {
@@ -34,15 +34,17 @@ public class LoginController {
     }
 
     /**
-     * 로그인 요청을 처리합니다.
-     * 아이디와 비밀번호를 검증하고, 유효한 경우 로그인 처리 후 세션에 회원 정보를 저장하고 메인 페이지로 리다이렉트합니다.
-     * @param loginForm 로그인 폼 데이터
-     * @param bindingResult 유효성 검사 결과
-     * @param request HTTP 서블릿 요청 객체
-     * @return 로그인 성공 시 메인 페이지로 리다이렉트, 실패 시 로그인 폼으로 돌아감
+     * 제출된 로그인 요청을 처리합니다.
+     * 입력된 아이디와 비밀번호를 검증하고, 유효한 경우 사용자 세션에 회원 정보를 저장 후 지정된 URL로 리다이렉트합니다.
+     *
+     * @param loginForm 로그인 폼 데이터 객체
+     * @param bindingResult 유효성 검사 결과를 담는 객체
+     * @param request HTTP 서블릿 요청 객체 (세션 관리에 사용)
+     * @param redirectURL 로그인 성공 후 리다이렉트할 URL (로그인 체크 인터셉터 의해 설정될 수 있음)
+     * @return 로그인 실패 시 로그인 폼 뷰, 성공 시 지정된 redirectURL로 리다이렉트
      */
     @PostMapping("/login")
-    public String login(@Validated @ModelAttribute LoginForm loginForm, BindingResult bindingResult, HttpServletRequest request) {
+    public String login(@Validated @ModelAttribute LoginForm loginForm, BindingResult bindingResult, HttpServletRequest request, @RequestParam(defaultValue = "/") String redirectURL) {
         if (bindingResult.hasErrors()) {
             return "login/loginForm";
         }
@@ -62,7 +64,7 @@ public class LoginController {
         // 세션에 로그인 회원 정보 보관
         session.setAttribute("loginMember", loginMember);
 
-        return "redirect:/";
+        return "redirect:" + redirectURL;
     }
 
     /**
