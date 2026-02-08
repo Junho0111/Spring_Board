@@ -24,11 +24,11 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(new LogInterceptor())
                 .order(1)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/css/**", "/js/**", "/img/**", "/error"); // 정적 리소스 및 에러 페이지 제외
+                .excludePathPatterns("/css/**", "/*.ico", "/error"); // 정적 리소스 및 에러 페이지 제외
 
         registry.addInterceptor(new LoginCheckInterceptor())
                 .order(2)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/", "/login", "/login/**", "/logout", "/css/**", "/js/**", "/img/**", "/error"); // 홈, 로그인 관련, 정적 리소스, 에러 페이지 제외
+                .excludePathPatterns("/", "/members/add", "/login", "/login/**", "/logout", "/css/**", "/*.ico", "/error"); // 홈, 회원가입, 로그인 관련, 정적 리소스, 에러 페이지 제외
     }
 }
