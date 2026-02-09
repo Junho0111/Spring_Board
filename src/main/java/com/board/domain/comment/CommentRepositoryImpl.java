@@ -86,7 +86,7 @@ public class CommentRepositoryImpl implements CommentRepository {
         }
 
         store.remove(id);
-        log.info("DELETED [ID={}, PostId={}]", id, deleteComment.getPostId());
+        log.info("DELETED [ID={}, PostId={}, Author={}]", id, deleteComment.getPostId(), deleteComment.getAuthor());
         return deleteComment;
     }
 
