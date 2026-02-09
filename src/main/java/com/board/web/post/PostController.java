@@ -1,5 +1,8 @@
 package com.board.web.post;
 
+import com.board.domain.comment.Comment;
+import com.board.domain.comment.CommentRepository;
+import com.board.web.comment.form.CommentForm;
 import com.board.domain.post.Post;
 import com.board.domain.post.PostRepository;
 import com.board.domain.member.Member;
@@ -28,6 +31,7 @@ import java.util.List;
 public class PostController {
 
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     /**
      * 모든 게시물 목록을 조회하여 뷰에 전달한다.
@@ -47,6 +51,7 @@ public class PostController {
 
     /**
      * 특정 게시물 ID에 해당하는 게시물을 조회하여 뷰에 전달한다.
+     * 댓글 목록과 댓글 작성을 위한 폼도 함께 전달한다.
      * <p>
      * GET 요청 {@code /posts/{postId}}를 처리한다.
      *
@@ -63,10 +68,14 @@ public class PostController {
             return "redirect:/posts";
         }
 
+        List<Comment> comments = commentRepository.findAllByPostId(postId);
+
         model.addAttribute("post", post);
+        model.addAttribute("comments", comments);
+        model.addAttribute("commentForm", new CommentForm());
+
         return "posts/post";
     }
-
     /**
      * 새로운 게시물을 생성하는 폼을 보여준다.
      * <p>
@@ -217,4 +226,3 @@ public class PostController {
     }
 
 }
-
