@@ -2,13 +2,11 @@ package com.board.domain.comment;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Comment {
 
     /** 댓글 고유 ID */
@@ -16,6 +14,9 @@ public class Comment {
 
     /** 연결된 게시물 ID */
     private Long postId;
+
+    /** 부모 댓글 ID (대댓글인 경우) */
+    private Long parentCommentId;
 
     /** 댓글 작성자 */
     private String author;
@@ -29,8 +30,19 @@ public class Comment {
     /** 댓글 수정 시간 */
     private LocalDateTime updatedAt;
 
+    // 댓글
     public Comment(Long postId, String author, String content) {
         this.postId = postId;
+        this.author = author;
+        this.content = content;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    // 대댓글
+    public Comment(Long postId, Long parentCommentId, String author, String content) {
+        this.postId = postId;
+        this.parentCommentId = parentCommentId;
         this.author = author;
         this.content = content;
         this.createdAt = LocalDateTime.now();
