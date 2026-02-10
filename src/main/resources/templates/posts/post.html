@@ -68,6 +68,69 @@
 
     </div>
 
+    <hr class="my-4">
+
+    <div class="mb-3">
+
+        <h3>댓글</h3>
+
+        <div th:each="comment : ${comments}" class="card mb-2">
+            <div class="card-body" th:style="${comment.parentCommentId != null ? 'margin-left: 20px;' : ''}">
+                <h5 class="card-title">
+                    <span th:text="${comment.author}">댓글 작성자</span>
+                    <small class="text-muted" th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
+                    <span th:if="${comment.parentCommentId != null}" class="badge bg-secondary">대댓글</span>
+                </h5>
+                <p class="card-text" th:text="${comment.content}">댓글 내용</p>
+
+                <div th:if="${session.loginMember != null and session.loginMember.name == comment.author}">
+                    <a th:href="@{|/posts/${postId}/comments/${comment.id}/edit|}" class="btn btn-sm btn-outline-secondary">수정</a>
+                    <form th:action="@{|/posts/${postId}/comments/${comment.id}/delete|}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('정말로 이 댓글을 삭제하시겠습니까?');">삭제</button>
+                    </form>
+                </div>
+
+                <button type="button" class="btn btn-sm btn-outline-primary reply-button"
+                        th:data-comment-id="${comment.id}"
+                        th:data-comment-author="${comment.author}"
+                        onclick="setReplyParentId(this.dataset.commentId, this.dataset.commentAuthor)">답글
+                </button>
+            </div>
+        </div>
+
+        <form th:action="@{|/posts/${postId}/comments|}" th:object="${commentForm}" method="post">
+            <div class="mb-3">
+                <label for="commentContent">댓글 내용</label>
+                <textarea th:field="*{content}" id="commentContent" class="form-control" rows="3" placeholder="댓글을 입력해주세요."></textarea>
+                <div th:errors="*{content}" class="alert alert-danger" role="alert" th:if="${#fields.hasErrors('content')}"></div>
+            </div>
+
+            <input type="hidden" th:field="*{parentCommentId}" id="parentCommentIdInput">
+            <span id="replyToIndicator" class="badge bg-light text-dark mb-2" style="display:none;"></span>
+            <button type="submit" class="btn btn-info">댓글 등록</button>
+            <button type="button" class="btn btn-secondary" onclick="cancelReply()" id="cancelReplyButton" style="display:none;">답글 취소</button>
+        </form>
+
+    </div>
+
 </div>
+
+<script th:inline="javascript">
+    function setReplyParentId(commentId, commentAuthor) {
+        document.getElementById('parentCommentIdInput').value = commentId;
+        document.getElementById('replyToIndicator').innerText = '답글: ' + commentAuthor + '님께';
+        document.getElementById('replyToIndicator').style.display = 'inline-block';
+        document.getElementById('cancelReplyButton').style.display = 'inline-block';
+        document.getElementById('commentContent').focus();
+    }
+
+    function cancelReply() {
+        document.getElementById('parentCommentIdInput').value = '';
+        document.getElementById('replyToIndicator').style.display = 'none';
+        document.getElementById('cancelReplyButton').style.display = 'none';
+        document.getElementById('commentContent').value = ''; // 작성 중인 내용 초기화
+    }
+</script>
+
 </body>
 </html>

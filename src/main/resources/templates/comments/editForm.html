@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>댓글 수정</title>
+    <link th:href="@{/css/bootstrap.min.css}" href="../../static/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container { max-width: 600px; margin-top: 50px; }
+        .field-error { color: #dc3545; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <hr class="my-4">
+
+    <h2>댓글 수정</h2>
+    <form th:action="@{|/posts/${postId}/comments/${commentId}/edit|}" th:object="${commentForm}" method="post">
+        <input type="hidden" th:field="*{parentCommentId}" />
+
+        <div class="mb-3">
+            <label for="content" class="form-label">댓글 내용</label>
+            <textarea id="content" th:field="*{content}" class="form-control" rows="5"></textarea>
+            <div class="field-error" th:errors="*{content}">댓글 내용 오류</div>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button type="submit" class="btn btn-primary">수정</button>
+            <button type="button" th:onclick="|location.href='@{/posts/${postId}}'|" class="btn btn-secondary">취소</button>
+        </div>
+    </form>
+
+
+</div>
+</body>
+</html>
