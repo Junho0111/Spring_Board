@@ -21,6 +21,9 @@ public class Comment {
     /** 댓글 작성자 */
     private String author;
 
+    /** 댓글 작성자 ID */
+    private Long authorId;
+
     /** 댓글 내용 */
     private String content;
 
@@ -31,19 +34,21 @@ public class Comment {
     private LocalDateTime updatedAt;
 
     // 댓글
-    public Comment(Long postId, String author, String content) {
+    public Comment(Long postId, String author, Long authorId, String content) {
         this.postId = postId;
         this.author = author;
+        this.authorId = authorId;
         this.content = content;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
     // 대댓글
-    public Comment(Long postId, Long parentCommentId, String author, String content) {
+    public Comment(Long postId, Long parentCommentId, String author, Long authorId, String content) {
         this.postId = postId;
         this.parentCommentId = parentCommentId;
         this.author = author;
+        this.authorId = authorId;
         this.content = content;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();

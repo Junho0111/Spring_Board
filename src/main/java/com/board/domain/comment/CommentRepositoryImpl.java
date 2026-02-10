@@ -43,7 +43,7 @@ public class CommentRepositoryImpl implements CommentRepository {
         comment.setUpdatedAt(LocalDateTime.now());
         store.put(comment.getId(), comment);
 
-        log.info("SAVE [ID={}, PostId={}, ParentId={}, Author={}]", comment.getId(), comment.getPostId(), comment.getParentCommentId(), comment.getAuthor());
+        log.info("SAVE [ID={}, PostId={}, ParentId={}, Author={}, AuthorId={}]", comment.getId(), comment.getPostId(), comment.getParentCommentId(), comment.getAuthor(), comment.getAuthorId());
         return comment;
     }
 

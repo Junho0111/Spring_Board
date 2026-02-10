@@ -45,7 +45,6 @@ public class CommentController {
         if (post == null) {
             log.warn("존재하지 않는 게시물 ID[{}]에 댓글 추가 시도", postId);
             redirectAttributes.addFlashAttribute("errorMessage", "댓글을 추가하려는 게시물이 존재하지 않습니다.");
-
             return "redirect:/posts";
         }
 
@@ -60,13 +59,12 @@ public class CommentController {
             if (parentComment == null || !parentComment.getPostId().equals(postId)) {
                 log.warn("유효하지 않은 부모 댓글 ID[{}] 또는 게시물 ID[{}]와 일치하지 않는 부모 댓글에 답글 시도", form.getParentCommentId(), postId);
                 redirectAttributes.addFlashAttribute("errorMessage", "유효하지 않은 부모 댓글입니다.");
-
                 return "redirect:/posts/" + postId;
             }
-            comment = new Comment(postId, form.getParentCommentId(), loginMember.getName(), form.getContent());
+            comment = new Comment(postId, form.getParentCommentId(), loginMember.getName(), loginMember.getId(), form.getContent());
             log.info("대댓글 저장 시도 [PostId={}, ParentCommentId={}, Author={}, Content={}]", postId, form.getParentCommentId(), loginMember.getName(), form.getContent());
         } else {
-            comment = new Comment(postId, loginMember.getName(), form.getContent());
+            comment = new Comment(postId, loginMember.getName(), loginMember.getId(), form.getContent());
             log.info("댓글 저장 시도 [PostId={}, Author={}, Content={}]", postId, loginMember.getName(), form.getContent());
         }
 
@@ -93,21 +91,18 @@ public class CommentController {
         if (comment == null) {
             log.warn("존재하지 않는 댓글 ID[{}]에 대한 수정 폼 요청", commentId);
             redirectAttributes.addFlashAttribute("errorMessage", "수정하려는 댓글이 존재하지 않습니다.");
-
             return "redirect:/posts/" + postId;
         }
 
         if (!comment.getPostId().equals(postId)) {
             log.warn("댓글 ID[{}]가 게시물 ID[{}]와 일치하지 않습니다.", commentId, postId);
             redirectAttributes.addFlashAttribute("errorMessage", "잘못된 접근입니다.");
-
             return "redirect:/posts/" + postId;
         }
 
-        if (!comment.getAuthor().equals(loginMember.getName())) {
-            log.warn("댓글 작성자[{}]와 로그인한 사용자[{}]가 일치하지 않아 수정 권한 없음", comment.getAuthor(), loginMember.getName());
+        if (!comment.getAuthorId().equals(loginMember.getId())) {
+            log.warn("댓글 작성자 ID[{}]와 로그인한 사용자 ID[{}]가 일치하지 않아 수정 권한 없음", comment.getAuthorId(), loginMember.getId());
             redirectAttributes.addFlashAttribute("errorMessage", "댓글을 수정할 권한이 없습니다.");
-
             return "redirect:/posts/" + postId;
         }
 
@@ -147,8 +142,8 @@ public class CommentController {
             return "redirect:/posts/" + postId;
         }
 
-        if (!comment.getAuthor().equals(loginMember.getName())) {
-            log.warn("댓글 작성자[{}]와 로그인한 사용자[{}]가 일치하지 않아 수정 권한 없음", comment.getAuthor(), loginMember.getName());
+        if (!comment.getAuthorId().equals(loginMember.getId())) {
+            log.warn("댓글 작성자 ID[{}]와 로그인한 사용자 ID[{}]가 일치하지 않아 수정 권한 없음", comment.getAuthorId(), loginMember.getId());
             redirectAttributes.addFlashAttribute("errorMessage", "댓글을 수정할 권한이 없습니다.");
             return "redirect:/posts/" + postId;
         }
@@ -188,8 +183,8 @@ public class CommentController {
             return "redirect:/posts/" + postId;
         }
 
-        if (!comment.getAuthor().equals(loginMember.getName())) {
-            log.warn("댓글 작성자[{}]와 로그인한 사용자[{}]가 일치하지 않아 삭제 권한 없음", comment.getAuthor(), loginMember.getName());
+        if (!comment.getAuthorId().equals(loginMember.getId())) {
+            log.warn("댓글 작성자 ID[{}]와 로그인한 사용자 ID[{}]가 일치하지 않아 삭제 권한 없음", comment.getAuthorId(), loginMember.getId());
             redirectAttributes.addFlashAttribute("errorMessage", "댓글을 삭제할 권한이 없습니다.");
             return "redirect:/posts/" + postId;
         }
