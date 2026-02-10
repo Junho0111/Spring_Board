@@ -20,10 +20,14 @@ public class Post {
     /** 게시물 작성자 */
     private String author;
 
+    /** 게시물 작성자 ID */
+    private Long authorId;
 
-    public Post(String title, String content, String author) {
+
+    public Post(String title, String content, String author, Long authorId) {
         this.title = title;
         this.content = content;
         this.author = author;
+        this.authorId = authorId;
     }
 }

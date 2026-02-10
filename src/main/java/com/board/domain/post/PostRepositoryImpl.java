@@ -39,7 +39,7 @@ public class PostRepositoryImpl implements PostRepository {
     public Post save(Post post) {
         post.setId(++sequence);
         store.put(post.getId(), post);
-        log.info("SAVE [ID={}, Author={}, Title={}]", post.getId(), post.getAuthor(), post.getTitle());
+        log.info("SAVE [ID={}, Author={}, Title={}, AuthorId={}]", post.getId(), post.getAuthor(), post.getTitle(), post.getAuthorId());
         return post;
     }
 
@@ -83,7 +83,7 @@ public class PostRepositoryImpl implements PostRepository {
         }
 
         store.remove(id);
-        log.info("DELETED [ID={}, Author={}, Title={}]", id, deletePost.getAuthor(), deletePost.getTitle());
+        log.info("DELETED [ID={}, AuthorId={}, Author={}, Title={}]", id, deletePost.getAuthorId(), deletePost.getAuthor(), deletePost.getTitle());
         return  deletePost;
     }
 
