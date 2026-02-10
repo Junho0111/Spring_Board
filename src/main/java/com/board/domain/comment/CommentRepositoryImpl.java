@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -91,6 +92,23 @@ public class CommentRepositoryImpl implements CommentRepository {
     }
 
     /**
+     * 여러 개의 댓글 ID를 한 번에 삭제합니다.
+     * @param commentIds 삭제할 댓글의 ID 리스트
+     */
+    @Override
+    public void deleteAllByIds(List<Long> commentIds) {
+        for (Long id : commentIds) {
+            Comment deletedComment = store.remove(id);
+
+            if (deletedComment != null) {
+                log.info("삭제 [ID={}, PostId={}, Author={}]", id, deletedComment.getPostId(), deletedComment.getAuthor());
+            } else {
+                log.warn("삭제 실패: ID {} NOT FOUND", id);
+            }
+        }
+    }
+
+    /**
      * 저장소에 있는 모든 댓글을 리스트 형태로 반환합니다.
      *
      * @return 모든 댓글의 {@link List}
@@ -122,6 +140,38 @@ public class CommentRepositoryImpl implements CommentRepository {
         return store.values().stream()
                 .filter(comment -> comment.getPostId().equals(postId))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 특정 부모 댓글 ID를 가진 모든 자식 댓글의 ID를 재귀적으로 조회하여 반환합니다.
+     * (직계 자식뿐만 아니라 모든 하위 댓글 포함)
+     *
+     * @param parentCommentId 조회할 부모 댓글의 ID
+     * @return 모든 하위 댓글의 ID 리스트 (부모 댓글 자체 ID는 포함되지 않음)
+     */
+    @Override
+    public List<Long> findAllDescendantCommentIds(Long parentCommentId) {
+        List<Long> descendantIds = new ArrayList<>();
+        findDescendants(parentCommentId, descendantIds);
+        return descendantIds;
+    }
+
+    /**
+     * 특정 부모 ID를 가진 댓글의 모든 하위 댓글을 재귀적으로 찾아 수집합니다.
+     * 이 메서드는 DFS방식으로 댓글 트리를 탐색합니다.
+     *
+     * @param parentId 현재 탐색 중인 부모 댓글의 ID
+     * @param descendantIds 발견된 모든 하위 댓글 ID를 수집할 리스트
+     */
+    private void findDescendants(Long parentId, List<Long> descendantIds) {
+        List<Comment> directChildren = store.values().stream()
+                .filter(comment -> Objects.equals(comment.getParentCommentId(), parentId))
+                .toList();
+
+        for (Comment c : directChildren) {
+            descendantIds.add(c.getId());
+            findDescendants(c.getId(), descendantIds);
+        }
     }
 
     public void clearStore() {

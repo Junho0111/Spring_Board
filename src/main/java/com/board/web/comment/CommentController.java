@@ -15,6 +15,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 댓글 관련 웹 요청을 처리하는 컨트롤러 클래스.
  * 특정 게시물에 대한 댓글 추가 및 답글 추가 기능을 제공합니다.
@@ -189,7 +192,15 @@ public class CommentController {
             return "redirect:/posts/" + postId;
         }
 
-        commentRepository.delete(commentId);
+        List<Long> commentsToDelete = new ArrayList<>();
+        commentsToDelete.add(commentId);
+
+        if (comment.getParentCommentId() == null) {
+            List<Long> descendantCommentIds = commentRepository.findAllDescendantCommentIds(commentId);
+            commentsToDelete.addAll(descendantCommentIds);
+        }
+
+        commentRepository.deleteAllByIds(commentsToDelete);
         redirectAttributes.addFlashAttribute("successMessage", "댓글이 성공적으로 삭제되었습니다.");
 
         return "redirect:/posts/" + postId;

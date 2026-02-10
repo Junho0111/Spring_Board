@@ -27,6 +27,12 @@ public interface CommentRepository {
     Comment delete(Long id);
 
     /**
+     * 여러 개의 댓글 ID를 한 번에 삭제합니다.
+     * @param commentIds 삭제할 댓글의 ID 리스트
+     */
+    void deleteAllByIds(List<Long> commentIds);
+
+    /**
      * 모든 댓글을 조회합니다.
      * @return 모든 댓글 리스트
      */
@@ -45,4 +51,14 @@ public interface CommentRepository {
      * @return 특정 게시물의 댓글 리스트
      */
     List<Comment> findAllByPostId(Long postId);
+
+    /**
+     * 특정 부모 댓글 ID를 가진 모든 자식 댓글의 ID를 재귀적으로 조회합니다.
+     * (직계 자식뿐만 아니라 모든 하위 댓글 포함)
+     * @param parentCommentId 조회할 부모 댓글의 ID
+     * @return 모든 하위 댓글의 ID 리스트 (부모 댓글 자체 ID는 포함되지 않음)
+     */
+    List<Long> findAllDescendantCommentIds(Long parentCommentId);
+
+
 }
