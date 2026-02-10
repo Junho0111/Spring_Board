@@ -9,6 +9,7 @@ import com.board.web.comment.form.CommentForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -71,6 +72,130 @@ public class CommentController {
 
         commentRepository.save(comment);
         redirectAttributes.addFlashAttribute("successMessage", "댓글이 성공적으로 작성되었습니다.");
+
+        return "redirect:/posts/" + postId;
+    }
+
+    /**
+     * 댓글 수정 폼을 제공합니다.
+     *
+     * @param postId 게시물 ID
+     * @param commentId 수정할 댓글 ID
+     * @param model 뷰에 데이터를 전달하는 Model 객체
+     * @param loginMember 세션에서 가져온 로그인 회원 객체 (권한 확인용)
+     * @param redirectAttributes 리다이렉트 시 사용할 속성
+     * @return 댓글 수정 폼 뷰 또는 리다이렉트 경로
+     */
+    @GetMapping("/{commentId}/edit")
+    public String editForm(@PathVariable("postId") Long postId, @PathVariable("commentId") Long commentId, Model model, @SessionAttribute(name = "loginMember") Member loginMember, RedirectAttributes redirectAttributes) {
+        Comment comment = commentRepository.findById(commentId);
+
+        if (comment == null) {
+            log.warn("존재하지 않는 댓글 ID[{}]에 대한 수정 폼 요청", commentId);
+            redirectAttributes.addFlashAttribute("errorMessage", "수정하려는 댓글이 존재하지 않습니다.");
+
+            return "redirect:/posts/" + postId;
+        }
+
+        if (!comment.getPostId().equals(postId)) {
+            log.warn("댓글 ID[{}]가 게시물 ID[{}]와 일치하지 않습니다.", commentId, postId);
+            redirectAttributes.addFlashAttribute("errorMessage", "잘못된 접근입니다.");
+
+            return "redirect:/posts/" + postId;
+        }
+
+        if (!comment.getAuthor().equals(loginMember.getName())) {
+            log.warn("댓글 작성자[{}]와 로그인한 사용자[{}]가 일치하지 않아 수정 권한 없음", comment.getAuthor(), loginMember.getName());
+            redirectAttributes.addFlashAttribute("errorMessage", "댓글을 수정할 권한이 없습니다.");
+
+            return "redirect:/posts/" + postId;
+        }
+
+        CommentForm commentForm = new CommentForm();
+        commentForm.setContent(comment.getContent());
+        model.addAttribute("commentForm", commentForm);
+        model.addAttribute("postId", postId);
+        model.addAttribute("commentId", commentId);
+
+        return "comments/editForm";
+    }
+
+    /**
+     * 댓글 수정 요청을 처리합니다.
+     *
+     * @param postId 게시물 ID
+     * @param commentId 수정할 댓글 ID
+     * @param form 댓글 내용 및 부모 댓글 ID를 포함하는 {@link CommentForm}
+     * @param bindingResult 유효성 검증 결과
+     * @param loginMember 세션에서 가져온 로그인 회원 객체 (권한 확인용)
+     * @param redirectAttributes 리다이렉트 시 사용할 속성
+     * @return 게시물 상세 페이지로 리다이렉트 또는 댓글 수정 폼 뷰
+     */
+    @PostMapping("/{commentId}/edit")
+    public String editComment(@PathVariable("postId") Long postId, @PathVariable("commentId") Long commentId, @Validated @ModelAttribute("commentForm") CommentForm form, BindingResult bindingResult, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) {
+        Comment comment = commentRepository.findById(commentId);
+
+        if (comment == null) {
+            log.warn("존재하지 않는 댓글 ID[{}]에 대한 수정 요청", commentId);
+            redirectAttributes.addFlashAttribute("errorMessage", "수정하려는 댓글이 존재하지 않습니다.");
+            return "redirect:/posts/" + postId;
+        }
+
+        if (!comment.getPostId().equals(postId)) {
+            log.warn("댓글 ID[{}]가 게시물 ID[{}]와 일치하지 않습니다.", commentId, postId);
+            redirectAttributes.addFlashAttribute("errorMessage", "잘못된 접근입니다.");
+            return "redirect:/posts/" + postId;
+        }
+
+        if (!comment.getAuthor().equals(loginMember.getName())) {
+            log.warn("댓글 작성자[{}]와 로그인한 사용자[{}]가 일치하지 않아 수정 권한 없음", comment.getAuthor(), loginMember.getName());
+            redirectAttributes.addFlashAttribute("errorMessage", "댓글을 수정할 권한이 없습니다.");
+            return "redirect:/posts/" + postId;
+        }
+
+        if (bindingResult.hasErrors()) {
+            return "comments/editForm"; 
+        }
+        
+        commentRepository.update(commentId, form.getContent());
+        redirectAttributes.addFlashAttribute("successMessage", "댓글이 성공적으로 수정되었습니다.");
+        
+        return "redirect:/posts/" + postId;
+    }
+    
+    /**
+     * 댓글 삭제 요청을 처리합니다.
+     *
+     * @param postId 게시물 ID
+     * @param commentId 삭제할 댓글 ID
+     * @param loginMember 세션에서 가져온 로그인 회원 객체 (권한 확인용)
+     * @param redirectAttributes 리다이렉트 시 사용할 속성
+     * @return 게시물 상세 페이지로 리다이렉트
+     */
+    @PostMapping("/{commentId}/delete")
+    public String delete(@PathVariable("postId") Long postId, @PathVariable("commentId") Long commentId, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) {
+        Comment comment = commentRepository.findById(commentId);
+
+        if (comment == null) {
+            log.warn("존재하지 않는 댓글 ID[{}]에 대한 삭제 요청", commentId);
+            redirectAttributes.addFlashAttribute("errorMessage", "삭제하려는 댓글이 존재하지 않습니다.");
+            return "redirect:/posts/" + postId;
+        }
+
+        if (!comment.getPostId().equals(postId)) {
+            log.warn("댓글 ID[{}]가 게시물 ID[{}]와 일치하지 않습니다.", commentId, postId);
+            redirectAttributes.addFlashAttribute("errorMessage", "잘못된 접근입니다.");
+            return "redirect:/posts/" + postId;
+        }
+
+        if (!comment.getAuthor().equals(loginMember.getName())) {
+            log.warn("댓글 작성자[{}]와 로그인한 사용자[{}]가 일치하지 않아 삭제 권한 없음", comment.getAuthor(), loginMember.getName());
+            redirectAttributes.addFlashAttribute("errorMessage", "댓글을 삭제할 권한이 없습니다.");
+            return "redirect:/posts/" + postId;
+        }
+
+        commentRepository.delete(commentId);
+        redirectAttributes.addFlashAttribute("successMessage", "댓글이 성공적으로 삭제되었습니다.");
 
         return "redirect:/posts/" + postId;
     }
