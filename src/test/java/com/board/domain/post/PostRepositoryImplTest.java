@@ -21,7 +21,7 @@ class PostRepositoryImplTest {
     @Test
     void 게시글_등록() {
         //given
-        Post post = new Post("test", "test", "test");
+        Post post = new Post("test", "test", "testAuthor", 1L);
 
         //when
         postRepository.save(post);
@@ -33,8 +33,8 @@ class PostRepositoryImplTest {
     @Test
     void 게시글_수정_성공() {
         //given
-        Post oldPost = new Post("기존 제목", "기존 내용", "작성자");
-        Post updatePost =  new Post("수정될 제목", "수정될 내용", "작성자");
+        Post oldPost = new Post("기존 제목", "기존 내용", "작성자", 1L);
+        Post updatePost = new Post("수정될 제목", "수정될 내용", "작성자", 1L);
         postRepository.save(oldPost);
 
         //when
@@ -43,7 +43,7 @@ class PostRepositoryImplTest {
         //then
         assertThat(postRepository.findById(oldPost.getId()).getTitle()).isEqualTo(updatePost.getTitle());
         assertThat(postRepository.findById(oldPost.getId()).getContent()).isEqualTo(updatePost.getContent());
-        assertThat(postRepository.findById(oldPost.getId()).getAuthor()).isEqualTo(updatePost.getAuthor());
+        assertThat(postRepository.findById(oldPost.getId()).getAuthorId()).isEqualTo(oldPost.getAuthorId());
     }
 
     @Test
@@ -64,7 +64,7 @@ class PostRepositoryImplTest {
     @Test
     void 게시글_삭제_성공() {
         // given
-        Post post = new Post("삭제될 제목", "삭제될 내용", "작성자");
+        Post post = new Post("삭제될 제목", "삭제될 내용", "작성자", 1L);
         postRepository.save(post);
 
         // when
@@ -92,8 +92,8 @@ class PostRepositoryImplTest {
     @Test
     void 모든_게시글_반환() {
         //given
-        Post post = new Post("test", "test", "test");
-        Post post2 = new Post("test1", "test1", "test1");
+        Post post = new Post("test", "test", "testAuthor1", 1L);
+        Post post2 = new Post("test1", "test1", "testAuthor2", 2L);
 
         postRepository.save(post);
         postRepository.save(post2);
@@ -109,7 +109,7 @@ class PostRepositoryImplTest {
     @Test
     void 게시물_검색_ID() {
         //given
-        Post post = new Post("test", "test", "test");
+        Post post = new Post("test", "test", "testAuthor", 1L);
 
         //when
         Post savePost = postRepository.save(post);

@@ -23,14 +23,14 @@ class CommentRepositoryImplTest {
     @Test
     void 댓글_대댓글_등록() {
         //given
-        Post post = new Post("test", "test", "test");
+        Post post = new Post("test", "test", "testAuthor", 1L);
         postRepository.save(post);
 
-        Comment comment = new Comment(post.getId(), "댓글_작성자", "댓글내용");
+        Comment comment = new Comment(post.getId(), "댓글_작성자", 1L, "댓글내용");
         commentRepository.save(comment);
 
         //when
-        Comment reply = new Comment(post.getId(), comment.getId(), "대댓글_작성자", "대댓글내용");
+        Comment reply = new Comment(post.getId(), comment.getId(), "대댓글_작성자", 2L, "대댓글내용");
         commentRepository.save(reply);
 
         //then
@@ -44,28 +44,28 @@ class CommentRepositoryImplTest {
     @Test
     void 댓글_대댓글_수정_성공() {
         //given
-        Post post = new Post("test", "test", "test");
+        Post post = new Post("test", "test", "testAuthor", 1L);
         postRepository.save(post);
 
-        Comment comment = new Comment(post.getId(), "댓글_작성자", "댓글내용");
+        Comment comment = new Comment(post.getId(), "댓글_작성자", 1L, "댓글내용");
         commentRepository.save(comment);
 
-        Comment reply = new Comment(post.getId(), comment.getId(), "대댓글_작성자", "대댓글내용");
+        Comment reply = new Comment(post.getId(), comment.getId(), "대댓글_작성자", 2L, "대댓글내용");
         commentRepository.save(reply);
 
         //when
-        Comment updateComment = new Comment(post.getId(), "댓글_작성자", "새로운 댓글내용");
+        Comment updateComment = new Comment(post.getId(), "댓글_작성자", 1L, "새로운 댓글내용");
         commentRepository.update(comment.getId(), updateComment.getContent());
 
-        Comment updateReply = new Comment(post.getId(), "대댓글_작성자", "새로운 대댓글내용");
+        Comment updateReply = new Comment(post.getId(), "대댓글_작성자", 2L, "새로운 대댓글내용");
         commentRepository.update(reply.getId(), updateReply.getContent());
 
         //then
-        assertThat(commentRepository.findById(comment.getId()).getAuthor()).isEqualTo(updateComment.getAuthor());
         assertThat(commentRepository.findById(comment.getId()).getContent()).isEqualTo(updateComment.getContent());
+        assertThat(commentRepository.findById(comment.getId()).getAuthorId()).isEqualTo(comment.getAuthorId()); // authorId는 변하지 않음을 검증
 
-        assertThat(commentRepository.findById(reply.getId()).getAuthor()).isEqualTo(updateReply.getAuthor());
         assertThat(commentRepository.findById(reply.getId()).getContent()).isEqualTo(updateReply.getContent());
+        assertThat(commentRepository.findById(reply.getId()).getAuthorId()).isEqualTo(reply.getAuthorId()); // authorId는 변하지 않음을 검증
     }
 
     @Test
@@ -85,13 +85,13 @@ class CommentRepositoryImplTest {
     @Test
     void 댓글_대댓글_삭제_성공() {
         //given
-        Post post = new Post("test", "test", "test");
+        Post post = new Post("test", "test", "testAuthor", 1L);
         postRepository.save(post);
 
-        Comment comment = new Comment(post.getId(), "댓글_작성자", "댓글내용");
+        Comment comment = new Comment(post.getId(), "댓글_작성자", 1L, "댓글내용");
         commentRepository.save(comment);
 
-        Comment reply = new Comment(post.getId(), comment.getId(), "대댓글_작성자", "대댓글내용");
+        Comment reply = new Comment(post.getId(), comment.getId(), "대댓글_작성자", 2L, "대댓글내용");
         commentRepository.save(reply);
 
         //when
@@ -121,13 +121,13 @@ class CommentRepositoryImplTest {
     @Test
     void 모든_댓글_반환() {
         //given
-        Post post = new Post("test", "test", "test");
+        Post post = new Post("test", "test", "testAuthor", 1L);
         postRepository.save(post);
 
-        Comment comment = new Comment(post.getId(), "댓글_작성자", "댓글내용");
+        Comment comment = new Comment(post.getId(), "댓글_작성자", 1L, "댓글내용");
         commentRepository.save(comment);
 
-        Comment reply = new Comment(post.getId(), comment.getId(), "대댓글_작성자", "대댓글내용");
+        Comment reply = new Comment(post.getId(), comment.getId(), "대댓글_작성자", 2L, "대댓글내용");
         commentRepository.save(reply);
 
         //when
@@ -141,13 +141,13 @@ class CommentRepositoryImplTest {
     @Test
     void 특정게시물_모든_댓글_반환() {
         //given
-        Post post = new Post("test", "test", "test");
+        Post post = new Post("test", "test", "testAuthor", 1L);
         postRepository.save(post);
 
-        Comment comment = new Comment(post.getId(), "댓글_작성자", "댓글내용");
+        Comment comment = new Comment(post.getId(), "댓글_작성자", 1L, "댓글내용");
         commentRepository.save(comment);
 
-        Comment reply = new Comment(post.getId(), comment.getId(), "대댓글_작성자", "대댓글내용");
+        Comment reply = new Comment(post.getId(), comment.getId(), "대댓글_작성자", 2L, "대댓글내용");
         commentRepository.save(reply);
 
         //when
@@ -161,13 +161,13 @@ class CommentRepositoryImplTest {
     @Test
     void 댓글_대댓글_검색_ID() {
         //given
-        Post post = new Post("test", "test", "test");
+        Post post = new Post("test", "test", "testAuthor", 1L);
         postRepository.save(post);
 
-        Comment comment = new Comment(post.getId(), "댓글_작성자", "댓글내용");
+        Comment comment = new Comment(post.getId(), "댓글_작성자", 1L, "댓글내용");
         commentRepository.save(comment);
 
-        Comment reply = new Comment(post.getId(), comment.getId(), "대댓글_작성자", "대댓글내용");
+        Comment reply = new Comment(post.getId(), comment.getId(), "대댓글_작성자", 2L, "대댓글내용");
         commentRepository.save(reply);
 
         //when
