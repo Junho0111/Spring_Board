@@ -77,6 +77,8 @@ public class CommentController {
         return "redirect:/posts/" + postId;
     }
 
+
+
     /**
      * 댓글 수정 폼을 제공합니다.
      *
@@ -117,6 +119,8 @@ public class CommentController {
 
         return "comments/editForm";
     }
+
+
 
     /**
      * 댓글 수정 요청을 처리합니다.
@@ -160,7 +164,9 @@ public class CommentController {
         
         return "redirect:/posts/" + postId;
     }
-    
+
+
+
     /**
      * 댓글 삭제 요청을 처리합니다.
      *
@@ -195,10 +201,8 @@ public class CommentController {
         List<Long> commentsToDelete = new ArrayList<>();
         commentsToDelete.add(commentId);
 
-        if (comment.getParentCommentId() == null) {
-            List<Long> descendantCommentIds = commentRepository.findAllDescendantCommentIds(commentId);
-            commentsToDelete.addAll(descendantCommentIds);
-        }
+        List<Long> descendantCommentIds = commentRepository.findAllDescendantCommentIds(commentId);
+        commentsToDelete.addAll(descendantCommentIds);
 
         commentRepository.deleteAllByIds(commentsToDelete);
         redirectAttributes.addFlashAttribute("successMessage", "댓글이 성공적으로 삭제되었습니다.");
