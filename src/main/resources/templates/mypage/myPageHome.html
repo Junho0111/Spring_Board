@@ -27,8 +27,10 @@
         <button type="button" class="list-group-item list-group-item-action disabled">
             <!--th:onclick="|location.href='@{ }'|">-->회원 탈퇴 (미구현)
         </button>
-        <button type="button" class="list-group-item list-group-item-action disabled">
-            <!--th:onclick="|location.href='@{ }'|">-->로그 아웃 (미구현)
+        <button type="button" class="list-group-item list-group-item-action">
+            <form th:action="@{/logout}" method="post">
+                <button class="w-100 btn btn-secondary btn-lg" type="submit"> 로그아웃 </button>
+            </form>
         </button>
     </div>
 
