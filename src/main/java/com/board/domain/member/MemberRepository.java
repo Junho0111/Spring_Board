@@ -34,4 +34,12 @@ public interface MemberRepository {
      * @return 모든 회원 정보를 담은 리스트
      */
     public List<Member> findAll();
+
+    /**
+     * 지정된 ID의 회원을 업데이트합니다.
+     * @param memberId 업데이트할 회원의 ID
+     * @param newName 업데이트할 회원의 새로운 이름
+     * @param newPassword 업데이트할 회원의 새로운 비밀번호
+     */
+    void update(Long memberId, String newName, String newPassword);
 }

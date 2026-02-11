@@ -1,5 +1,6 @@
 package com.board.domain.member;
 
+import com.board.domain.post.Post;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -42,6 +43,20 @@ public class MemberRepositoryImpl implements MemberRepository {
     @Override
     public List<Member> findAll() {
         return new ArrayList<>(store.values());
+    }
+
+    @Override
+    public void update(Long memberId, String newName, String newPassword) {
+        Member findMember = findById(memberId);
+
+        if (findMember == null) {
+            log.error("UPDATE FAILED: ID {} NOT FOUND", memberId);
+            throw new IllegalArgumentException("수정 실패: 해당 ID(" + memberId + ")의 회원이 존재하지 않습니다.");
+        }
+
+        findMember.setName(newName);
+        findMember.setPassword(newPassword);
+        log.info("UPDATED [ID={}, LoginID={}, Name={}, Password={}]", findMember.getId(), findMember.getLoginId(), findMember.getName(), findMember.getPassword());
     }
 
     public void clearStore() {
