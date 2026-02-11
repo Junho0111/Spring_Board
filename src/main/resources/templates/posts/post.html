@@ -83,7 +83,7 @@
                 </h5>
                 <p class="card-text" th:text="${comment.content}">댓글 내용</p>
 
-                <div th:if="${session.loginMember != null and session.loginMember.name == comment.author}">
+                <div th:if="${session.loginMember != null and session.loginMember.id == comment.authorId}">
                     <a th:href="@{|/posts/${postId}/comments/${comment.id}/edit|}" class="btn btn-sm btn-outline-secondary">수정</a>
                     <form th:action="@{|/posts/${postId}/comments/${comment.id}/delete|}" method="post" style="display:inline;">
                         <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('정말로 이 댓글을 삭제하시겠습니까?');">삭제</button>
