@@ -13,6 +13,7 @@
     <div class="py-5 text-center">
         <h2>게시물 목록</h2>
     </div>
+    </div>
 
     <div th:if="${successMessage}" class="alert alert-success" role="alert">
         <p th:text="${successMessage}"></p>
@@ -51,7 +52,7 @@
 
             <tbody>
             <tr th:each="post : ${posts}">
-                <td><a th:href="@{|/posts/${post.id}|}" th:text="${post.id}">1</a></td>
+                <td><a th:href="@{|/posts/${post.id}|}" th:text="${post.id}">게시글 고유 ID</a></td>
                 <td><a th:href="@{|/posts/${post.id}|}" th:text="${post.title}">제목</a></td>
                 <td th:text="${post.author}">작성자</td>
             </tr>

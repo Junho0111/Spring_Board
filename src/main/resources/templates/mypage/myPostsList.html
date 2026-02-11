@@ -34,12 +34,9 @@
             </thead>
             <tbody>
             <tr th:each="post : ${posts}">
-                <td th:text="${post.id}">게시글 ID</td>
-                <td><a th:href="@{|/posts/${post.id}|}"
-                       th:text="${post.title}">제목</a>
-                </td>
+                <td><a th:href="@{|/posts/${post.id}|}" th:text="${post.id}">게시글 ID</a></td>
+                <td><a th:href="@{|/posts/${post.id}|}" th:text="${post.title}">제목</a></td>
                 <td th:text="${post.author}">작성자</td>
-                <td th:text="${post.createdDate}">작성일</td>
             </tr>
             </tbody>
         </table>

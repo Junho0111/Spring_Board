@@ -26,7 +26,7 @@ public class MyPageController {
     public String myPageHome(@SessionAttribute("loginMember") Member loginMember, Model model) {
         model.addAttribute("loginMember", loginMember);
 
-        return "my-page/myPageHome";
+        return "mypage/myPageHome";
     }
 
     @GetMapping("/my-posts")
@@ -35,6 +35,6 @@ public class MyPageController {
         model.addAttribute("posts", posts);
         model.addAttribute("loginMember", loginMember);
 
-        return "my-page/myPostsList";
+        return "mypage/myPostsList";
     }
 }
