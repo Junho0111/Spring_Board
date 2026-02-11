@@ -38,4 +38,11 @@ public interface PostRepository {
      * @return 조회된 게시물 객체, 없으면 null
      */
     Post findById(Long id);
+
+    /**
+     * 특정 회원이 작성한 모든 게시물을 조회합니다.
+     * @param memberId 조회할 회원의 ID
+     * @return 해당 회원이 작성한 게시물 리스트
+     */
+    List<Post> findByMemberId(Long memberId);
 }

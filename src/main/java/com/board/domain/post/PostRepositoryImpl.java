@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -106,6 +107,19 @@ public class PostRepositoryImpl implements PostRepository {
     @Override
     public Post findById(Long id) {
         return store.get(id);
+    }
+
+    /**
+     * 특정 회원이 작성한 모든 게시물을 찾아 리스트 형태로 반환합니다.
+     *
+     * @param memberId 조회할 회원의 ID
+     * @return 해당 회원이 작성한 게시물들의 {@link List}
+     */
+    @Override
+    public List<Post> findByMemberId(Long memberId) {
+        return store.values().stream()
+                .filter(post -> Objects.equals(post.getAuthorId(), memberId))
+                .toList();
     }
 
     public void clearStore() {
