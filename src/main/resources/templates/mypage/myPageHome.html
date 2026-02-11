@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <style>
+        .container { max-width: 560px; }
+        .list-group-item { cursor: pointer; }
+    </style>
+    <link th:href="@{/css/bootstrap.min.css}"
+          href="../css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="py-5 text-center">
+        <h2 th:if="${loginMember}" th:text="${loginMember.name} + '님의 페이지'">마이페이지</h2>
+    </div>
+
+    <div class="list-group">
+        <button type="button" class="list-group-item list-group-item-action disabled">
+            <!--th:onclick="|location.href='@{ }'|">-->내가 쓴 글 보기 (미구현)
+        </button>
+        <button type="button" class="list-group-item list-group-item-action disabled">
+            <!--th:onclick="|location.href='@{ }'|">-->내 정보 수정 (미구현)
+        </button>
+        <button type="button" class="list-group-item list-group-item-action disabled">
+            <!--th:onclick="|location.href='@{ }'|">-->회원 탈퇴 (미구현)
+        </button>
+        <button type="button" class="list-group-item list-group-item-action disabled">
+            <!--th:onclick="|location.href='@{ }'|">-->로그 아웃 (미구현)
+        </button>
+    </div>
+
+</div>
+
+</body>
+</html>

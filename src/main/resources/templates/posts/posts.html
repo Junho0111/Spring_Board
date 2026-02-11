@@ -24,6 +24,11 @@
 
     <div class="row">
         <div class="col">
+            <button th:if="${loginMember}" class="btn btn-info float-end me-2"
+                    th:onclick="|location.href='@{/posts/my-page}'|" type="button"
+                    th:text="${loginMember.name} + '님의 페이지로 이동'">마이페이지
+            </button>
+
             <button class="btn btn-primary float-end"
                     onclick="location.href='add'"
                     th:onclick="|location.href='@{/posts/add}'|" type="button">게시물 등록

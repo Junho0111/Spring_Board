@@ -42,9 +42,10 @@ public class PostController {
      * @return 게시물 목록 뷰의 논리적 이름 ({@code posts/posts})
      */
     @GetMapping
-    public String posts(Model model) {
+    public String posts(@SessionAttribute(name = "loginMember") Member loginMember, Model model) {
         List<Post> posts = postRepository.findAll();
         model.addAttribute("posts", posts);
+        model.addAttribute("loginMember", loginMember);
 
         return "posts/posts";
     }
