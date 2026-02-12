@@ -1,6 +1,5 @@
 package com.board.domain.post;
 
-import com.board.domain.member.MemberRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -65,6 +64,25 @@ public class PostRepositoryImpl implements PostRepository {
         findPost.setTitle(title);
         findPost.setContent(content);
         log.info("UPDATED [ID={}, Author={} ,Title={}]", id, findPost.getAuthor(), findPost.getTitle());
+    }
+
+    /**
+     * 지정된 ID의 게시물 작성자명을 업데이트합니다.
+     *
+     * @param id 업데이트할 회원 ID
+     * @param author 업데이트할 회원 이름
+     */
+    @Override
+    public void updateAuthor(Long id, String author) {
+        Post findPost = findById(id);
+
+        if (findPost == null) {
+            log.error("UPDATE FAILED: ID {} NOT FOUND", id);
+            throw new IllegalArgumentException("수정 실패: 해당 ID(" + id + ")의 게시물이 존재하지 않습니다.");
+        }
+
+        findPost.setAuthor(author);
+        log.info("AUTHOR UPDATED [ID={}, Author={}]", id, findPost.getAuthor());
     }
 
     /**
