@@ -53,6 +53,13 @@ public interface CommentRepository {
     List<Comment> findAllByPostId(Long postId);
 
     /**
+     * 특정 게시물에 속한 모든 댓글 지움
+     *
+     * @param postId 댓글을 조회할 게시물의 ID
+     */
+    void deleteByPostId(Long postId);
+
+    /**
      * 특정 부모 댓글 ID를 가진 모든 자식 댓글의 ID를 재귀적으로 조회합니다.
      * (직계 자식뿐만 아니라 모든 하위 댓글 포함)
      * @param parentCommentId 조회할 부모 댓글의 ID
