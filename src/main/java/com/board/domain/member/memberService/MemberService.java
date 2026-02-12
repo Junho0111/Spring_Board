@@ -1,7 +1,10 @@
 package com.board.domain.member.memberService;
 
+import com.board.domain.comment.CommentRepository;
 import com.board.domain.member.Member;
 import com.board.domain.member.MemberRepository;
+import com.board.domain.post.Post;
+import com.board.domain.post.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +18,8 @@ import java.util.List;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     /**
      * 새로운 회원을 가입시킵니다.
@@ -30,6 +35,19 @@ public class MemberService {
                 });
 
         return memberRepository.save(member);
+    }
+
+    /**
+     * 기존 회원을 탈퇴시킴.
+     * @param memberId 탈퇴할 회원의 아이디
+     */
+    public void deleteMember(Long memberId) {
+        List<Post> posts = postRepository.findByMemberId(memberId);
+        for (Post post : posts) {
+            commentRepository.deleteByPostId(post.getId());
+            postRepository.delete(post.getId());
+        }
+        memberRepository.delete(memberId);
     }
 
     /**
