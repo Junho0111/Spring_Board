@@ -1,5 +1,6 @@
 package com.board.domain.member.memberService;
 
+import com.board.domain.comment.Comment;
 import com.board.domain.comment.CommentRepository;
 import com.board.domain.member.Member;
 import com.board.domain.member.MemberRepository;
@@ -48,6 +49,24 @@ public class MemberService {
             postRepository.delete(post.getId());
         }
         memberRepository.delete(memberId);
+    }
+
+    /**
+     * 업데이트 하기전의 게시물과 댓글의 작성자명을 업데이트 후의 명으로 바꿔줍니다.
+     * @param memberId 업데이트할 회원의 아이디
+     * @param newName 업데이트할 회원의 이름
+     */
+    public void updateAuthorNameInPostsAndComments(Long memberId, String newName) {
+        List<Post> posts = postRepository.findByMemberId(memberId);
+        for (Post post : posts) {
+            List<Comment> allByPostId = commentRepository.findAllByPostId(post.getId());
+            for (Comment comment : allByPostId) {
+                if(comment.getAuthorId().equals(memberId)) {
+                    commentRepository.updateAuthor(comment.getId(), newName);
+                }
+            }
+            postRepository.updateAuthor(post.getId(), newName);
+        }
     }
 
     /**
