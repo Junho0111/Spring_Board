@@ -64,6 +64,7 @@ public class MyPageController {
         String newPassword = form.getNewPassword();
         String newName = form.getNewName();
 
+        memberService.updateAuthorNameInPostsAndComments(loginMember.getId(), newName);
         memberRepository.update(loginMember.getId(), newName, newPassword);
         return "redirect:/posts/my-page";
     }
