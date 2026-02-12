@@ -1,5 +1,6 @@
 package com.board.domain.member;
 
+import com.board.domain.comment.Comment;
 import com.board.domain.post.Post;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -57,6 +58,20 @@ public class MemberRepositoryImpl implements MemberRepository {
         findMember.setName(newName);
         findMember.setPassword(newPassword);
         log.info("UPDATED [ID={}, LoginID={}, Name={}, Password={}]", findMember.getId(), findMember.getLoginId(), findMember.getName(), findMember.getPassword());
+    }
+
+    @Override
+    public Member delete(Long id) {
+        Member deleteMember = findById(id);
+
+        if (deleteMember == null) {
+            log.error("DELETE FAILED: ID {} NOT FOUND", id);
+            throw new IllegalArgumentException("삭제 실패: 해당 ID(" + id + ")의 회원이 존재하지 않습니다.");
+        }
+
+        store.remove(id);
+        log.info("DELETED [ID={}, loginId={}, name={}, password={}]", id, deleteMember.getLoginId(), deleteMember.getName(), deleteMember.getPassword());
+        return deleteMember;
     }
 
     public void clearStore() {

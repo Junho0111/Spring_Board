@@ -1,5 +1,7 @@
 package com.board.domain.member;
 
+import com.board.domain.comment.Comment;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -42,4 +44,10 @@ public interface MemberRepository {
      * @param newPassword 업데이트할 회원의 새로운 비밀번호
      */
     void update(Long memberId, String newName, String newPassword);
+
+    /**
+     * 지정된 ID의 회원을 저장소에서 지웁니다.
+     * @param id 지울 회원의 ID
+     */
+    Member delete(Long id);
 }
