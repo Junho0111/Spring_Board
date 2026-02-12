@@ -71,6 +71,25 @@ public class CommentRepositoryImpl implements CommentRepository {
     }
 
     /**
+     * 지정된 ID의 댓글 작성자명을 업데이트합니다.
+     *
+     * @param id 업데이트할 회원 ID
+     * @param author 업데이트할 회원 이름
+     */
+    @Override
+    public void updateAuthor(Long id, String author) {
+        Comment findComment = findById(id);
+
+        if (findComment == null) {
+            log.error("UPDATE FAILED: ID {} NOT FOUND", id);
+            throw new IllegalArgumentException("수정 실패: 해당 ID(" + id + ")의 댓글이 존재하지 않습니다.");
+        }
+
+        findComment.setAuthor(author);
+        log.info("AUTHOR UPDATED [ID={}, Author={}]", id, findComment.getAuthor());
+    }
+
+    /**
      * 지정된 ID의 댓글을 저장소에서 삭제합니다.
      *
      * @param id 삭제할 댓글의 ID

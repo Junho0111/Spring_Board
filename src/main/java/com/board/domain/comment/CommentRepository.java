@@ -20,6 +20,14 @@ public interface CommentRepository {
     void update(Long id, String content);
 
     /**
+     * 지정된 ID의 댓글 작성자명을 업데이트합니다.
+     *
+     * @param id 업데이트할 회원 ID
+     * @param author 업데이트할 회원 이름
+     */
+    void updateAuthor(Long id, String author);
+
+    /**
      * 지정된 ID의 댓글을 삭제합니다.
      * @param id 삭제할 댓글의 ID
      * @return 삭제된 댓글 객체
