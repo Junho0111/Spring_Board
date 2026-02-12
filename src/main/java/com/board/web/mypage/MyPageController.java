@@ -1,11 +1,14 @@
 package com.board.web.mypage;
 
+import com.board.domain.comment.CommentRepository;
 import com.board.domain.member.Member;
 import com.board.domain.member.MemberRepository;
+import com.board.domain.member.memberService.MemberService;
 import com.board.domain.post.Post;
 import com.board.domain.post.PostRepository;
 import com.board.web.mypage.form.MemberEditForm;
-import com.board.web.post.form.PostForm;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +19,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.net.http.HttpRequest;
 import java.util.List;
 
 
@@ -28,6 +30,7 @@ public class MyPageController {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
     @GetMapping
     public String myPageHome(@SessionAttribute("loginMember") Member loginMember, Model model) {
@@ -65,4 +68,16 @@ public class MyPageController {
         return "redirect:/posts/my-page";
     }
 
+    @PostMapping("/delete")
+    public String delete(@SessionAttribute("loginMember") Member loginMember, HttpServletRequest request) {
+        memberService.deleteMember(loginMember.getId());
+
+        HttpSession session = request.getSession(false);
+
+        if (session != null) {
+            session.invalidate();
+        }
+
+        return "redirect:/";
+    }
 }

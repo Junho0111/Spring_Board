@@ -24,9 +24,10 @@
         <button type="button" class="list-group-item list-group-item-action"
                 th:onclick="|location.href='@{/posts/my-page/my-edit}'|">내 정보 수정
         </button>
-        <button type="button" class="list-group-item list-group-item-action disabled">
-            <!--th:onclick="|location.href='@{ }'|">-->회원 탈퇴 (미구현)
-        </button>
+        <form th:action="@{/posts/my-page/delete}" method="post">
+            <button type="submit" class="list-group-item list-group-item-action"
+                    onclick="return confirm('정말로 회원 탈퇴를 하시겠습니까?');">회원 탈퇴</button>
+        </form>
         <button type="button" class="list-group-item list-group-item-action">
             <form th:action="@{/logout}" method="post">
                 <button class="w-100 btn btn-secondary btn-lg" type="submit"> 로그아웃 </button>
