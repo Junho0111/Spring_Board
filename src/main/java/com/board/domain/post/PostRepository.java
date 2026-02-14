@@ -1,5 +1,7 @@
 package com.board.domain.post;
 
+import com.board.domain.uploadfile.UploadFile;
+
 import java.util.List;
 
 /**게시물(Post) 데이터에 접근하기 위한 리포지토리 인터페이스.*/
@@ -17,8 +19,10 @@ public interface PostRepository {
      * @param id 업데이트할 게시물의 ID
      * @param title 업데이트할 게시물 제목
      * @param content 업데이트할 게시물 내용
+     * @param attachFile 첨부 파일
+     * @param imageFiles 이미지 파일 목록
      */
-    void update(Long id, String title, String content);
+    void update(Long id, String title, String content, UploadFile attachFile, List<UploadFile> imageFiles);
 
     /**
      * 지정된 ID의 게시물 작성자명을 업데이트합니다.

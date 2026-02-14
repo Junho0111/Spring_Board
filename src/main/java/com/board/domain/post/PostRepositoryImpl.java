@@ -1,5 +1,6 @@
 package com.board.domain.post;
 
+import com.board.domain.uploadfile.UploadFile;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -50,10 +51,12 @@ public class PostRepositoryImpl implements PostRepository {
      * @param id      업데이트할 게시물의 ID
      * @param title 업데이트할 게시물 제목
      * @param content 업데이트할 게시물 내용
+     * @param attachFile 첨부 파일
+     * @param imageFiles 이미지 파일 목록
      * @throws IllegalArgumentException 해당 ID의 게시물이 존재하지 않을 경우 발생
      */
     @Override
-    public void update(Long id, String title, String content) {
+    public void update(Long id, String title, String content, UploadFile attachFile, List<UploadFile> imageFiles) {
         Post findPost = findById(id);
 
         if (findPost == null) {
@@ -63,6 +66,8 @@ public class PostRepositoryImpl implements PostRepository {
 
         findPost.setTitle(title);
         findPost.setContent(content);
+        findPost.setAttachFile(attachFile);
+        findPost.setImageFiles(imageFiles);
         log.info("UPDATED [ID={}, Author={} ,Title={}]", id, findPost.getAuthor(), findPost.getTitle());
     }
 
