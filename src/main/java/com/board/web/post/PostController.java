@@ -2,10 +2,12 @@ package com.board.web.post;
 
 import com.board.domain.comment.Comment;
 import com.board.domain.comment.CommentRepository;
+import com.board.domain.uploadfile.UploadFile;
 import com.board.web.comment.form.CommentForm;
 import com.board.domain.post.Post;
 import com.board.domain.post.PostRepository;
 import com.board.domain.member.Member;
+import com.board.web.file.FileStore;
 import com.board.web.post.form.PostForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +17,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import java.net.MalformedURLException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import java.nio.charset.StandardCharsets;
+import org.springframework.web.util.UriUtils;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -32,6 +42,46 @@ public class PostController {
 
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final FileStore fileStore;
+
+    /**
+     * 지정된 파일 이름의 이미지를 응답 본문에 직접 반환합니다.
+     * 주로 <img> 태그의 src 속성에서 이미지를 표시하는 데 사용됩니다.
+     *
+     * @param filename 서버에 저장된 이미지 파일의 이름
+     * @return 이미지 파일에 대한 리소스
+     * @throws MalformedURLException 파일 경로가 잘못된 형식일 경우
+     */
+    @ResponseBody
+    @GetMapping("/images/{filename}")
+    public Resource downloadImage(@PathVariable String filename) throws MalformedURLException {
+        return new UrlResource("file:" + fileStore.getFullPath(filename));
+    }
+
+
+    /**
+     * 게시물에 첨부된 파일을 다운로드합니다.
+     * Content-Disposition 헤더를 'attachment'로 설정하여 브라우저가 파일을 직접 표시하는 대신 다운로드 대화상자를 표시하도록 합니다.
+     * 파일 이름은 UTF-8로 인코딩되어 다국어 문자가 깨지는 것을 방지합니다.
+     *
+     * @param postId 파일을 다운로드할 게시물의 ID
+     * @return 다운로드할 파일과 HTTP 헤더를 포함하는 ResponseEntity
+     * @throws MalformedURLException 파일 경로가 잘못된 형식일 경우
+     */
+    @GetMapping("/attach/{postId}")
+    public ResponseEntity<Resource> downloadAttach(@PathVariable Long postId) throws MalformedURLException {
+        Post post = postRepository.findById(postId);
+        String storeFileName = post.getAttachFile().getStoreFileName();
+        String uploadFileName = post.getAttachFile().getUploadFileName();
+
+        UrlResource resource = new UrlResource("file:" + fileStore.getFullPath(storeFileName));
+        log.info("uploadFileName={}", uploadFileName);
+
+        String encodedUploadFileName = UriUtils.encode(uploadFileName, StandardCharsets.UTF_8);
+        String contentDisposition = "attachment; filename=\"" + encodedUploadFileName + "\"";
+
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition).body(resource);
+    }
 
     /**
      * 모든 게시물 목록을 조회하여 뷰에 전달한다.
@@ -78,17 +128,16 @@ public class PostController {
         return "posts/post";
     }
     /**
-     * 새로운 게시물을 생성하는 폼을 보여준다.
+     * 새로운 게시물 등록을 위한 폼 화면을 출력한다.
      * <p>
-     * GET 요청 {@code /posts/add}를 처리한다.
+     * {@code @ModelAttribute("post")}를 통해 빈 {@link PostForm} 객체를 생성하고,
+     * 이를 "post"라는 이름으로 모델에 담아 뷰({@code posts/addForm})로 전달한다.
      *
-     * @param model 뷰에 {@link PostForm} 객체를 추가하여 폼 바인딩을 준비
-     * @return 게시물 생성 폼 뷰의 논리적 이름 ({@code posts/addForm})
+     * @param form HTML 폼 바인딩을 위한 빈 {@link PostForm} 객체
+     * @return 게시물 등록 폼의 뷰 논리적 이름
      */
     @GetMapping("/add")
-    public String addForm(Model model) {
-        model.addAttribute("post", new PostForm());
-
+    public String addForm(@ModelAttribute("post") PostForm form) {
         return "posts/addForm";
     }
 
@@ -105,17 +154,22 @@ public class PostController {
      * @return 유효성 검증 실패 시 게시물 생성 폼으로 돌아가고, 성공 시 생성된 게시물 상세 페이지로 리다이렉트
      */
     @PostMapping("/add")
-    public String addPost(@Validated @ModelAttribute("post") PostForm form, BindingResult bindingResult, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) {
+    public String addPost(@Validated @ModelAttribute("post") PostForm form, BindingResult bindingResult, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) throws IOException {
 
         if (bindingResult.hasErrors()) {
             return "posts/addForm";
         }
+
+        UploadFile attachFile = fileStore.storeFile(form.getAttachFile());
+        List<UploadFile> storeImageFiles = fileStore.storeFiles(form.getImageFiles());
 
         Post post = new Post();
         post.setTitle(form.getTitle());
         post.setContent(form.getContent());
         post.setAuthor(loginMember.getName());
         post.setAuthorId(loginMember.getId());
+        post.setAttachFile(attachFile);
+        post.setImageFiles(storeImageFiles);
 
         postRepository.save(post);
         log.info("새 게시물 저장 완료 [ID={}, AuthorId={}, Author={}, Title={}]", post.getId(), post.getAuthorId(), post.getAuthor(), post.getTitle());
@@ -174,7 +228,7 @@ public class PostController {
      * @return 유효성 검증 실패 시 게시물 편집 폼으로 돌아가고, 성공 시 편집된 게시물 상세 페이지로 리다이렉트
      */
     @PostMapping("/{postId}/edit")
-    public String edit(@PathVariable("postId") Long postId, @Validated @ModelAttribute("post") PostForm form, BindingResult bindingResult, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) {
+    public String edit(@PathVariable("postId") Long postId, @Validated @ModelAttribute("post") PostForm form, BindingResult bindingResult, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) throws IOException {
 
         if (bindingResult.hasErrors()) {
             return "posts/editForm";
@@ -193,7 +247,10 @@ public class PostController {
             return "redirect:/posts";
         }
 
-        postRepository.update(postId, form.getTitle(), form.getContent());
+        UploadFile attachFile = fileStore.storeFile(form.getAttachFile());
+        List<UploadFile> storeImageFiles = fileStore.storeFiles(form.getImageFiles());
+
+        postRepository.update(postId, form.getTitle(), form.getContent(), attachFile, storeImageFiles);
         log.info("게시물 ID[{}] 업데이트 완료 [Author={}, newTitle={}]", postId, post.getAuthor(), form.getTitle());
 
         redirectAttributes.addAttribute("postId", postId);
