@@ -1,8 +1,10 @@
 package com.board.domain.post;
 
+import com.board.domain.uploadfile.UploadFile;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**게시물 정보를 나타내는 도메인 객체*/
 @Data
@@ -25,10 +27,10 @@ public class Post {
     private Long authorId;
 
     /** 파일 첨부 */
-    //private UploadFile attachFile;
+    private UploadFile attachFile;
 
     /** 이미지 첨부 */
-   // private List<UploadFile> imageFiles;
+    private List<UploadFile> imageFiles;
 
     public Post(String title, String content, String author, Long authorId) {
         this.title = title;
