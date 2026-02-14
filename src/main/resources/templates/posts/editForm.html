@@ -14,7 +14,7 @@
         <h2>게시물 편집</h2>
     </div>
 
-    <form action="" th:action="@{|/posts/${postId}/edit|}" th:object="${post}" method="post">
+    <form action="" th:action="@{|/posts/${postId}/edit|}" th:object="${post}" method="post" enctype="multipart/form-data">
 
         <div th:if="${#fields.hasGlobalErrors()}">
             <p class="field-error" th:each="err : ${#fields.globalErrors()}" th:text="${err}">
@@ -34,6 +34,16 @@
             <textarea id="content" th:field="*{content}" class="form-control" rows="10"
                       th:errorclass="field-error" th:placeholder="#{label.post.content.placeholder}"></textarea>
             <div class="field-error" th:errors="*{content}">내용 오류</div>
+        </div>
+
+        <div>
+            <label for="attachFile">첨부파일</label>
+            <input type="file" id="attachFile" name="attachFile" class="form-control">
+        </div>
+
+        <div>
+            <label for="imageFiles">이미지 파일</label>
+            <input type="file" multiple="multiple" id="imageFiles" name="imageFiles" class="form-control">
         </div>
 
         <hr class="my-4">
