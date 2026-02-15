@@ -25,4 +25,14 @@ public class PostForm {
 
     /** 파일 첨부 */
     private MultipartFile attachFile;
+
+
+    /** 이미지파일이 비어있는가 또는 비어있지 않은가 확인하는 메서드*/
+    public boolean hasImageFiles() {
+        if (this.imageFiles == null || this.imageFiles.isEmpty()) {
+            return false;
+        }
+
+        return this.imageFiles.stream().anyMatch(files -> !files.isEmpty());
+    }
 }
