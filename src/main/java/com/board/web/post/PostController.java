@@ -209,9 +209,10 @@ public class PostController {
         PostForm postForm = new PostForm();
         postForm.setTitle(post.getTitle());
         postForm.setContent(post.getContent());
-        model.addAttribute("post", postForm);
-        model.addAttribute("postId", postId);
 
+        model.addAttribute("postForm", postForm);
+        model.addAttribute("post", post);
+        model.addAttribute("postId", postId);
         return "posts/editForm";
     }
 
