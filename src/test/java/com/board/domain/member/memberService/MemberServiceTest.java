@@ -1,7 +1,9 @@
 package com.board.domain.member.memberService;
 
+import com.board.domain.comment.CommentRepository;
 import com.board.domain.member.Member;
 import com.board.domain.member.MemberRepositoryImpl;
+import com.board.domain.post.PostRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,11 +14,13 @@ class MemberServiceTest {
 
     MemberService memberService;
     MemberRepositoryImpl memberRepository;
+    PostRepository postRepository;
+    CommentRepository commentRepository;
 
     @BeforeEach
     public void beforeEach() {
         memberRepository = new MemberRepositoryImpl();
-        memberService = new MemberService(memberRepository);
+        memberService = new MemberService(memberRepository, postRepository, commentRepository);
     }
 
     @AfterEach

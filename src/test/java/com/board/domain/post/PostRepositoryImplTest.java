@@ -1,9 +1,11 @@
 package com.board.domain.post;
 
 import com.board.domain.member.Member;
+import com.board.domain.uploadfile.UploadFile;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -38,7 +40,7 @@ class PostRepositoryImplTest {
         postRepository.save(oldPost);
 
         //when
-        postRepository.update(oldPost.getId(), updatePost.getTitle(), updatePost.getContent());
+        postRepository.update(oldPost.getId(), updatePost.getTitle(), updatePost.getContent(), updatePost.getAttachFile(), updatePost.getImageFiles());
 
         //then
         assertThat(postRepository.findById(oldPost.getId()).getTitle()).isEqualTo(updatePost.getTitle());
@@ -52,10 +54,12 @@ class PostRepositoryImplTest {
         Long notSaveId = 999L;
         String updateTitle = "수정용 제목";
         String updateContent = "수정용 내용";
+        UploadFile updateFile = new UploadFile("테스트파일", "테스트파일명");
+        List<UploadFile> updateFiles = new ArrayList<>();
 
         // when & then
         assertThatThrownBy(() -> {
-            postRepository.update(notSaveId, updateTitle, updateContent);
+            postRepository.update(notSaveId, updateTitle, updateContent, updateFile,  updateFiles);
         })
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("수정 실패: 해당 ID(" + notSaveId + ")의 게시물이 존재하지 않습니다.");
