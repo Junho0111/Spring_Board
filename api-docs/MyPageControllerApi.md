@@ -27,6 +27,9 @@
     *   `mypage/myPageHome.html` 뷰 페이지 반환
     *   Model 포함: `loginMember` (로그인 회원 정보)
 
+<br>
+
+
 ### 2. 내가 작성한 게시물 목록 조회
 
 *   **설명:** 로그인한 사용자가 작성한 모든 게시물 목록을 조회합니다.
@@ -46,6 +49,9 @@
     *   `mypage/myPostsList.html` 뷰 페이지 반환
     *   Model 포함: `posts` (작성한 게시물 목록), `loginMember` (로그인 회원 정보)
 
+<br>
+
+
 ### 3. 회원 정보 수정 폼 페이지 조회
 
 *   **설명:** 로그인한 사용자의 회원 정보(이름, 비밀번호)를 수정하기 위한 폼 페이지를 제공합니다.
@@ -64,6 +70,9 @@
 *   **성공 (HTTP 200 OK):**
     *   `mypage/myEditForm.html` 뷰 페이지 반환
     *   Model 포함: `memberEditForm` (수정 폼 데이터 바인딩을 위한 빈 객체)
+
+<br>
+
 
 ### 4. 회원 정보 수정 처리
 
@@ -87,6 +96,9 @@
 *   **실패 (HTTP 200 OK):**
     *   `mypage/myEditForm.html` 뷰 페이지 반환
     *   Model에 유효성 검사 실패 등의 에러 메시지 포함
+
+<br>
+
 
 ### 5. 회원 탈퇴 처리
 
