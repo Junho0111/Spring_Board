@@ -4,6 +4,63 @@
 
 ---
 
+## 아키텍처 (Architecture)
+
+```mermaid
+graph LR
+
+    subgraph Client ["사용자 영역"]
+        Browser[<font size=5>🌐</font><br>브라우저]
+    end
+
+    subgraph WebLayer ["프레젠테이션 계층 (Web)"]
+        direction TB
+        DS[DispatcherServlet]
+        
+        subgraph Interceptors ["검문소 (Interceptors)"]
+            Log[로그 기록]
+            Login[로그인 체크]
+        end
+
+        subgraph Controllers ["컨트롤러 (업무 배정)"]
+            C_Home[홈]
+            C_Login[로그인]
+            C_Post[게시글]
+            C_Comment[댓글]
+        end
+
+        DTO["📦 데이터 전달 객체<br>(Forms/DTOs)"]
+    end
+
+    subgraph ServiceLayer ["비즈니스 계층 (Service)"]
+        S_Member[회원 서비스]
+        S_Login[로그인 서비스]
+    end
+
+    subgraph RepositoryLayer ["데이터 접근 계층 (Repository)"]
+        R_Post[게시글 저장소]
+        R_Member[회원 저장소]
+    end
+
+    subgraph Infra ["인프라 / 저장소"]
+        DB[(💾 메모리 DB)]
+        Files[📁 로컬 파일 시스템]
+    end
+
+    Browser ==> DS
+    DS --> Log --> Login --> Controllers
+    
+    Controllers -.-> DTO
+    Controllers ==> ServiceLayer
+    ServiceLayer ==> RepositoryLayer
+    
+    RepositoryLayer --> DB
+    ServiceLayer --> Files
+    
+    
+---
+    
+    
 ## 개발 원칙
 
 * **엔티티 설계의 중요성:** 엔티티 변수명의 일관성이 타임리프(`ModelAttribute`)와 컨트롤러 간의 데이터 전달 효율을 결정한다는 것을 체감했습니다.
