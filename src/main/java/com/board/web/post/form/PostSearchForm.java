@@ -11,4 +11,7 @@ public class PostSearchForm {
 
     /** 검색 키워드 */
     private String keyword;
+
+    /** 현재 페이지 */
+    private int currentPage = 1;
 }
