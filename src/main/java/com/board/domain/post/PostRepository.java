@@ -45,6 +45,17 @@ public interface PostRepository {
     List<Post> findAll();
 
     /**
+     * 검색 조건과 페이징 설정을 기준으로 게시물 목록을 조회합니다.
+     *
+     * @param type 조회할 타입 (author, title 등)
+     * @param keyword 검색할 키워드 (null 또는 공백일 경우 전체 조회)
+     * @param currentPage 현재 페이지 번호 (1부터 시작)
+     * @param postsPerPage 한 페이지에 보여줄 게시물 수
+     * @return 검색 조건 및 페이징이 적용된 게시물 리스트
+     */
+    List<Post> postSearchFindAll(String type, String keyword, int currentPage, int postsPerPage);
+
+    /**
      * 지정된 ID의 게시물을 조회합니다.
      * @param id 조회할 게시물의 ID
      * @return 조회된 게시물 객체, 없으면 null

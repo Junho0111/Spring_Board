@@ -4,11 +4,9 @@ import com.board.domain.uploadfile.UploadFile;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * 게시물 리포지토리의 메모리 내 구현체입니다.
@@ -119,6 +117,40 @@ public class PostRepositoryImpl implements PostRepository {
     @Override
     public List<Post> findAll() {
         return new ArrayList<>(store.values());
+    }
+
+    /**
+     * 검색 조건과 페이징 설정을 기준으로 게시물 목록을 조회합니다.
+     *
+     * @param type 조회할 타입 (author, title 등)
+     * @param keyword 검색할 키워드 (null 또는 공백일 경우 전체 조회)
+     * @param currentPage 현재 페이지 번호 (1부터 시작)
+     * @param postsPerPage 한 페이지에 보여줄 게시물 수
+     * @return 검색 조건 및 페이징이 적용된 게시물 리스트
+     */
+    @Override
+    public List<Post> postSearchFindAll(String type, String keyword, int currentPage, int postsPerPage) {
+        int offset = (currentPage - 1) * postsPerPage;
+
+        return store.values().stream()
+                .filter(post -> {
+                    if (keyword == null || keyword.isBlank()) {
+                        return true;
+                    }
+
+                    if ("author".equals(type)) {
+                        return post.getAuthor().contains(keyword);
+                    }
+
+                    if ("title".equals(type)) {
+                        return post.getTitle().contains(keyword);
+                    }
+
+                    return true;
+                })
+                .skip(offset)
+                .limit(postsPerPage)
+                .collect(Collectors.toList());
     }
 
     /**
