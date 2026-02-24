@@ -154,6 +154,33 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     /**
+     * 검색 조건과 페이징 설정을 기준으로 게시물 목록가져와 개수 반환
+     *
+     * @param type 조회할 타입 (author, title 등)
+     * @param keyword 검색할 키워드 (null 또는 공백일 경우 전체 조회)
+     * @return 검색 조건 및 페이징이 적용된 게시물 리스트 개수 반환
+     */
+    public int postSearchCount(String type, String keyword) {
+        return (int) store.values().stream()
+                .filter(post -> {
+                    if (keyword == null || keyword.isBlank()) {
+                        return true;
+                    }
+
+                    if ("author".equals(type)) {
+                        return post.getAuthor().contains(keyword);
+                    }
+
+                    if ("title".equals(type)) {
+                        return post.getTitle().contains(keyword);
+                    }
+
+                    return true;
+                })
+                .count();
+    }
+
+    /**
      * 지정된 ID에 해당하는 게시물을 찾아 반환합니다.
      *
      * @param id 조회할 게시물의 ID
