@@ -5,7 +5,10 @@
     <link th:href="@{/css/bootstrap.min.css}" href="../css/bootstrap.min.css" rel="stylesheet">
     <style>
         .container { max-width: 800px; }
+        .pagination { margin-bottom: 50px; }
+        .page-link { cursor: pointer; }
     </style>
+    <title>게시물 목록</title>
 </head>
 <body>
 <div class="container">
@@ -13,53 +16,100 @@
     <div class="py-5 text-center">
         <h2>게시물 목록</h2>
     </div>
-    </div>
 
     <div th:if="${successMessage}" class="alert alert-success" role="alert">
-        <p th:text="${successMessage}"></p>
+        <p th:text="${successMessage}" class="mb-0"></p>
     </div>
-
     <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
-        <p th:text="${errorMessage}"></p>
+        <p th:text="${errorMessage}" class="mb-0"></p>
     </div>
 
-    <div class="row">
+    <div class="row mb-3">
         <div class="col">
-            <button th:if="${loginMember}" class="btn btn-info float-end me-2"
+            <button th:if="${loginMember}" class="btn btn-outline-info float-end ms-2"
                     th:onclick="|location.href='@{/posts/my-page}'|" type="button"
-                    th:text="${loginMember.name} + '님의 페이지로 이동'">마이페이지
+                    th:text="${loginMember.name} + '님의 페이지'">마이페이지
             </button>
-
             <button class="btn btn-primary float-end"
-                    onclick="location.href='add'"
                     th:onclick="|location.href='@{/posts/add}'|" type="button">게시물 등록
             </button>
         </div>
     </div>
 
+    <form th:action="@{/posts}" th:object="${form}" method="get" class="row g-2 justify-content-center mb-4">
+        <div class="col-auto">
+            <select th:field="*{searchType}" class="form-select">
+                <option value="title">제목</option>
+                <option value="author">작성자</option>
+            </select>
+        </div>
+
+        <div class="col-auto">
+            <input type="text" th:field="*{keyword}" class="form-control" placeholder="검색어를 입력하세요">
+        </div>
+
+        <div class="col-auto">
+            <button type="submit" class="btn btn-secondary">검색</button>
+        </div>
+    </form>
+
     <hr class="my-4">
 
-    <div>
-        <table class="table table-striped">
-
-            <thead>
+    <div class="mb-4">
+        <table class="table table-hover">
+            <thead class="table-light">
             <tr>
-                <th>ID</th>
-                <th>제목</th>
-                <th>작성자</th>
+                <th style="width: 10%">ID</th>
+                <th style="width: 60%">제목</th>
+                <th style="width: 30%">작성자</th>
             </tr>
             </thead>
 
             <tbody>
             <tr th:each="post : ${posts}">
-                <td><a th:href="@{|/posts/${post.id}|}" th:text="${post.id}">게시글 고유 ID</a></td>
-                <td><a th:href="@{|/posts/${post.id}|}" th:text="${post.title}">제목</a></td>
-                <td th:text="${post.author}">작성자</td>
+                <td th:text="${post.id}">1</td>
+                <td>
+                    <a th:href="@{|/posts/${post.id}|}" th:text="${post.title}">게시글 제목</a>
+                </td>
+                <td th:text="${post.author}">작성자명</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(posts)}">
+                <td colspan="3" class="text-center py-5 text-muted">검색 결과가 없습니다.</td>
             </tr>
             </tbody>
-
         </table>
     </div>
+
+    <nav aria-label="Page navigation" th:if="${pagedResult != null && pagedResult.totalPage > 0}">
+        <ul class="pagination justify-content-center">
+
+            <li class="page-item" th:classappend="${!pagedResult.hasPrevCheck} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/posts(currentPage=${pagedResult.startPage - 1}, searchType=${form.searchType}, keyword=${form.keyword})}"
+                   aria-label="Previous">
+                    <span aria-hidden="true">&laquo; 이전</span>
+                </a>
+            </li>
+
+            <li class="page-item"
+                th:each="i : ${#numbers.sequence(pagedResult.startPage, pagedResult.endPage)}"
+                th:classappend="${i == form.currentPage} ? 'active'">
+                <a class="page-link"
+                   th:href="@{/posts(currentPage=${i}, searchType=${form.searchType}, keyword=${form.keyword})}"
+                   th:text="${i}">1
+                </a>
+            </li>
+
+            <li class="page-item" th:classappend="${!pagedResult.hasNextCheck} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/posts(currentPage=${pagedResult.endPage + 1}, searchType=${form.searchType}, keyword=${form.keyword})}"
+                   aria-label="Next">
+                    <span aria-hidden="true">다음 &raquo;</span>
+                </a>
+            </li>
+
+        </ul>
+    </nav>
 
 </div>
 </body>
