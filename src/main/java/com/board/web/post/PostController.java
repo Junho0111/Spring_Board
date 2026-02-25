@@ -2,13 +2,16 @@ package com.board.web.post;
 
 import com.board.domain.comment.Comment;
 import com.board.domain.comment.CommentRepository;
+import com.board.domain.post.postService.PostService;
 import com.board.domain.uploadfile.UploadFile;
 import com.board.web.comment.form.CommentForm;
 import com.board.domain.post.Post;
 import com.board.domain.post.PostRepository;
 import com.board.domain.member.Member;
 import com.board.web.file.FileStore;
+import com.board.web.post.form.PagedResultForm;
 import com.board.web.post.form.PostForm;
+import com.board.web.post.form.PostSearchForm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -43,6 +46,7 @@ public class PostController {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final FileStore fileStore;
+    private final PostService postService;
 
     /**
      * 지정된 파일 이름의 이미지를 응답 본문에 직접 반환합니다.
@@ -84,19 +88,25 @@ public class PostController {
     }
 
     /**
-     * 모든 게시물 목록을 조회하여 뷰에 전달한다.
+     * 검색 조건 및 페이징이 적용된 게시물 목록을 조회하여 뷰에 전달한다.
      * <p>
-     * GET 요청 {@code /posts}를 처리한다.
+     * GET 요청 {@code /posts}를 처리하며, 검색어 유무에 따라 전체 또는 필터링된 목록을 반환한다.
      *
-     * @param model 뷰에 데이터를 전달하는 {@link Model} 객체
+     * @param loginMember 세션에서 가져온 로그인 회원 정보 (비로그인 허용)
+     * @param form        검색 타입, 키워드, 현재 페이지 번호를 담은 객체
+     * @param model       뷰에 게시물 리스트 및 페이징 정보를 전달하는 객체
      * @return 게시물 목록 뷰의 논리적 이름 ({@code posts/posts})
      */
     @GetMapping
-    public String posts(@SessionAttribute(name = "loginMember") Member loginMember, Model model) {
-        List<Post> posts = postRepository.findAll();
+    public String posts(@SessionAttribute(name = "loginMember", required = false) Member loginMember, @ModelAttribute("form") PostSearchForm form, Model model) {
+        int totalCount = postService.getTotalCount(form.getSearchType(),form.getKeyword());
+
+        List<Post> posts = postService.findPosts(form.getSearchType(), form.getKeyword(), form.getCurrentPage(), 10);
+        PagedResultForm pagedResult = new PagedResultForm(totalCount, form.getCurrentPage(), 10);
+
         model.addAttribute("posts", posts);
         model.addAttribute("loginMember", loginMember);
-
+        model.addAttribute("pagedResult", pagedResult);
         return "posts/posts";
     }
 
