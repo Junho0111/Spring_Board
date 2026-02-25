@@ -52,24 +52,28 @@
 <br>
 
 
-### 3. 모든 게시물 목록 조회
+### 3. 전체 게시물 목록 조회
 
-*   **설명:** 시스템에 등록된 모든 게시물의 목록을 조회하여 뷰에 전달합니다.
+*   **설명:** 시스템에 등록된 게시물 목록을 조회하여 뷰에 전달합니다. 검색 조건(제목, 작성자)과 페이지 번호에 따라 필터링된 결과를 보여줍니다.
 *   **URI:** `/posts`
 *   **HTTP Method:** `GET`
-*   **인증:** 선택적 (로그인 여부에 따라 뷰 내용이 달라질 수 있음)
+*   **인증:** 선택적 (로그인 여부에 따라 마이페이지 이동 버튼 등 뷰 내용이 달라짐)
 
 #### 요청
 
+*   **Query Parameters**
+    *   `searchType` (String, 선택): 검색 조건 (`title`: 제목, `author`: 작성자).
+    *   `keyword` (String, 선택): 검색어. 값이 없으면 전체 목록을 조회합니다.
+    *   `currentPage` (int, 선택): 조회할 페이지 번호 (기본값: 1).
+
 *   **Header:**
     *   `Cookie`: `SESSION` (로그인된 경우 세션 ID 포함)
-*   **Body:** 없음
 
 #### 응답
 
 *   **성공 (HTTP 200 OK):**
     *   `posts/posts.html` 뷰 페이지 반환.
-    *   Model 포함: `posts` (게시물 목록), `loginMember` (로그인 회원 정보, null일 수 있음).
+    *    Model 포함: `posts`: 검색 및 페이징이 적용된 게시물 리스트, `loginMember`: 로그인 회원 정보, `form`: 입력한 검색 조건과 현재 페이지 정보, `pagedResult`: 페이징 처리를 위한 계산 정보.
 
 <br>
 
@@ -90,7 +94,7 @@
 
 *   **성공 (HTTP 200 OK):**
     *   `posts/post.html` 뷰 페이지 반환.
-    *   Model 포함: `post` (게시물 상세 정보), `comments` (댓글 목록), `commentForm` (빈 댓글 폼 객체).
+    *    Model 포함: `post` (게시물 상세 정보), `comments` (댓글 목록), `commentForm` (빈 댓글 폼 객체).
 *   **실패 (HTTP 302 Found):**
     *   게시물을 찾을 수 없는 경우 게시물 목록 페이지로 리다이렉트: `Location: /posts`
 
