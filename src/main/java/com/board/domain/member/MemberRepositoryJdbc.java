@@ -5,6 +5,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
@@ -42,12 +43,12 @@ public class MemberRepositoryJdbc implements MemberRepository {
      */
     @Override
     public Member save(Member member) {
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("login_id", member.getLoginId());
-        parameters.put("name", member.getName());
-        parameters.put("password", member.getPassword());
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("login_id", member.getLoginId())
+                .addValue("name", member.getName())
+                .addValue("password", member.getPassword());
 
-        Number key = insertActor.executeAndReturnKey(parameters);
+        Number key = insertActor.executeAndReturnKey(params);
         member.setId(key.longValue());
 
         log.info("DB SAVE [ID={}, LoginID={}]", member.getId(), member.getLoginId());
