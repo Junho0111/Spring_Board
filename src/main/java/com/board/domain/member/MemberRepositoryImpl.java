@@ -12,7 +12,7 @@ import java.util.*;
  * {@link MemberRepository} 인터페이스를 구현합니다.
  */
 @Slf4j
-@Repository
+//@Repository
 public class MemberRepositoryImpl implements MemberRepository {
 
     /** 회원을 저장하기 위한 메모리 내 임시 저장소입니다. Key는 회원의 ID입니다. */
