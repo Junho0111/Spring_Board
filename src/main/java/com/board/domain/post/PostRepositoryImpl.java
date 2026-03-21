@@ -160,6 +160,7 @@ public class PostRepositoryImpl implements PostRepository {
      * @param keyword 검색할 키워드 (null 또는 공백일 경우 전체 조회)
      * @return 검색 조건 및 페이징이 적용된 게시물 리스트 개수 반환
      */
+    @Override
     public int postSearchCount(String type, String keyword) {
         return (int) store.values().stream()
                 .filter(post -> {
