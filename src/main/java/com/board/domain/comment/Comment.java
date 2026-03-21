@@ -1,12 +1,14 @@
 package com.board.domain.comment;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@ToString
+@EqualsAndHashCode(of = "id")
 public class Comment {
 
     /** 댓글 고유 ID */

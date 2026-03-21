@@ -1,14 +1,16 @@
 package com.board.domain.post;
 
 import com.board.domain.uploadfile.UploadFile;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 /**게시물 정보를 나타내는 도메인 객체*/
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
+@ToString
+@EqualsAndHashCode(of = "id")
 public class Post {
 
     /** 게시물 고유 ID */
