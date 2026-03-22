@@ -3,12 +3,10 @@ package com.board.web.post;
 import com.board.domain.comment.Comment;
 import com.board.domain.comment.CommentRepository;
 import com.board.domain.post.postService.PostService;
-import com.board.domain.uploadfile.UploadFile;
 import com.board.web.comment.form.CommentForm;
 import com.board.domain.post.Post;
-import com.board.domain.post.PostRepository;
 import com.board.domain.member.Member;
-import com.board.web.file.FileStore;
+import com.board.domain.util.file.FileStore;
 import com.board.web.post.form.PagedResultForm;
 import com.board.web.post.form.PostForm;
 import com.board.web.post.form.PostSearchForm;
@@ -43,7 +41,6 @@ import java.util.List;
 @RequestMapping("posts")
 public class PostController {
 
-    private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final FileStore fileStore;
     private final PostService postService;
@@ -74,7 +71,7 @@ public class PostController {
      */
     @GetMapping("/attach/{postId}")
     public ResponseEntity<Resource> downloadAttach(@PathVariable Long postId) throws MalformedURLException {
-        Post post = postRepository.findById(postId);
+        Post post = postService.getPost(postId);
         String storeFileName = post.getAttachFile().getStoreFileName();
         String uploadFileName = post.getAttachFile().getUploadFileName();
 
@@ -122,7 +119,7 @@ public class PostController {
      */
     @GetMapping("/{postId}")
     public String post(@PathVariable("postId") Long postId, Model model) {
-        Post post = postRepository.findById(postId);
+        Post post = postService.getPost(postId);
 
         if (post == null) {
             log.warn("요청된 게시물 ID[{}]를 찾을 수 없습니다.", postId);
@@ -170,21 +167,17 @@ public class PostController {
             return "posts/addForm";
         }
 
-        UploadFile attachFile = fileStore.storeFile(form.getAttachFile());
-        List<UploadFile> storeImageFiles = fileStore.storeFiles(form.getImageFiles());
-
         Post post = new Post();
         post.setTitle(form.getTitle());
         post.setContent(form.getContent());
         post.setAuthor(loginMember.getName());
         post.setAuthorId(loginMember.getId());
-        post.setAttachFile(attachFile);
-        post.setImageFiles(storeImageFiles);
 
-        postRepository.save(post);
-        log.info("새 게시물 저장 완료 [ID={}, AuthorId={}, Author={}, Title={}]", post.getId(), post.getAuthorId(), post.getAuthor(), post.getTitle());
+        Long savedPostId = postService.savePost(post, form.getAttachFile(), form.getImageFiles());
 
-        redirectAttributes.addAttribute("postId", post.getId());
+        log.info("새 게시물 저장 완료 [ID={}, Author={}]", savedPostId, post.getAuthor());
+
+        redirectAttributes.addAttribute("postId", savedPostId);
         return "redirect:/posts/{postId}";
     }
 
@@ -202,7 +195,7 @@ public class PostController {
      */
     @GetMapping("/{postId}/edit")
     public String editForm(@PathVariable("postId") Long postId, Model model, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) {
-        Post post = postRepository.findById(postId);
+        Post post = postService.getPost(postId);
 
         if (post == null) {
             log.warn("편집 요청된 게시물 ID[{}]를 찾을 수 없습니다.", postId);
@@ -245,7 +238,7 @@ public class PostController {
             return "posts/editForm";
         }
 
-        Post post = postRepository.findById(postId);
+        Post post = postService.getPost(postId);
 
         if (post == null) {
             log.warn("편집 요청된 게시물 ID[{}]를 찾을 수 없습니다.", postId);
@@ -258,21 +251,7 @@ public class PostController {
             return "redirect:/posts";
         }
 
-        UploadFile newAttachFile;
-        if (form.getAttachFile() != null && !form.getAttachFile().isEmpty()) {
-            newAttachFile = fileStore.storeFile(form.getAttachFile());
-        } else {
-            newAttachFile = post.getAttachFile();
-        }
-
-        List<UploadFile> newImageFiles;
-        if (form.getImageFiles() != null && form.hasImageFiles()) {
-            newImageFiles = fileStore.storeFiles(form.getImageFiles());
-        } else {
-            newImageFiles = post.getImageFiles();
-        }
-
-        postRepository.update(postId, form.getTitle(), form.getContent(), newAttachFile, newImageFiles);
+        postService.updatePost(postId, form.getTitle(), form.getContent(), form.getAttachFile(), form.getImageFiles());
 
         log.info("게시물 ID[{}] 업데이트 완료", postId);
 
@@ -293,7 +272,7 @@ public class PostController {
     @PostMapping("/{postId}/delete")
     public String delete(@PathVariable("postId") Long postId, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) {
 
-        Post post = postRepository.findById(postId);
+        Post post = postService.getPost(postId);
         if (post == null) {
             log.warn("삭제 요청된 게시물 ID[{}]를 찾을 수 없습니다.", postId);
             redirectAttributes.addFlashAttribute("errorMessage", "삭제하려는 게시물을 찾을 수 없습니다.");
@@ -306,7 +285,7 @@ public class PostController {
             return "redirect:/posts/{postId}";
         }
 
-        postRepository.delete(postId);
+        postService.deletePost(postId);
         log.info("게시물 ID[{}] 삭제 완료 [Author={}, Title={}}", postId, loginMember.getName(), post.getTitle());
         redirectAttributes.addFlashAttribute("successMessage", "게시물이 성공적으로 삭제되었습니다.");
 
