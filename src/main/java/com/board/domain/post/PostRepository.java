@@ -19,10 +19,8 @@ public interface PostRepository {
      * @param id 업데이트할 게시물의 ID
      * @param title 업데이트할 게시물 제목
      * @param content 업데이트할 게시물 내용
-     * @param attachFile 첨부 파일
-     * @param imageFiles 이미지 파일 목록
      */
-    void update(Long id, String title, String content, UploadFile attachFile, List<UploadFile> imageFiles);
+    void update(Long id, String title, String content);
 
     /**
      * 지정된 ID의 게시물 작성자명을 업데이트합니다.

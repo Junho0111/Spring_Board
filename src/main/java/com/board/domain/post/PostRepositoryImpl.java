@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * {@link PostRepository} 인터페이스를 구현합니다.
  */
 @Slf4j
-@Repository
+//@Repository
 public class PostRepositoryImpl implements PostRepository {
 
     /**
@@ -42,6 +42,11 @@ public class PostRepositoryImpl implements PostRepository {
         return post;
     }
 
+    @Override
+    public void update(Long id, String title, String content) {
+        //이제 인터페이스 수정과 함께 메모리기반 리포지토리는 안씀
+    }
+
     /**
      * 지정된 ID의 게시물 정보를 업데이트합니다.
      * 현재 구현에서는 제목과 내용만 업데이트합니다.
@@ -53,7 +58,7 @@ public class PostRepositoryImpl implements PostRepository {
      * @param imageFiles 이미지 파일 목록
      * @throws IllegalArgumentException 해당 ID의 게시물이 존재하지 않을 경우 발생
      */
-    @Override
+  //  @Override
     public void update(Long id, String title, String content, UploadFile attachFile, List<UploadFile> imageFiles) {
         Post findPost = findById(id);
 
