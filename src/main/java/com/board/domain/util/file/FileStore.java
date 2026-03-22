@@ -1,4 +1,4 @@
-package com.board.web.file;
+package com.board.domain.util.file;
 
 import com.board.domain.uploadfile.FileTypeEnum;
 import com.board.domain.uploadfile.UploadFile;
