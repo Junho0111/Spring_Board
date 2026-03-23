@@ -6,7 +6,7 @@ import com.board.domain.post.postService.PostService;
 import com.board.web.comment.form.CommentForm;
 import com.board.domain.post.Post;
 import com.board.domain.member.Member;
-import com.board.domain.util.file.FileStore;
+import com.board.util.file.FileStore;
 import com.board.web.post.form.PagedResultForm;
 import com.board.web.post.form.PostForm;
 import com.board.web.post.form.PostSearchForm;

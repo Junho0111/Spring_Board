@@ -5,7 +5,7 @@ import com.board.domain.post.PostRepository;
 import com.board.domain.uploadfile.FileTypeEnum;
 import com.board.domain.uploadfile.UploadFile;
 import com.board.domain.uploadfile.UploadFileRepositoryJdbc;
-import com.board.domain.util.file.FileStore;
+import com.board.util.file.FileStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
