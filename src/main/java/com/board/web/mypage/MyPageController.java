@@ -55,7 +55,7 @@ public class MyPageController {
     }
 
     @PostMapping("/my-edit")
-    public String edit(@Validated @ModelAttribute("memberEditForm") MemberEditForm form, BindingResult bindingResult, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) {
+    public String edit(HttpServletRequest request, @Validated @ModelAttribute("memberEditForm") MemberEditForm form, BindingResult bindingResult, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) {
 
         if(bindingResult.hasErrors()) {
             return "mypage/myEditForm";
@@ -66,6 +66,13 @@ public class MyPageController {
 
         memberService.updateAuthorNameInPostsAndComments(loginMember.getId(), newName);
         memberRepository.update(loginMember.getId(), newName, newPassword);
+
+        Member updateLoginMember = memberService.findMemberById(loginMember.getId());
+
+        HttpSession session = request.getSession(false);
+        session.setAttribute("loginMember", updateLoginMember);
+
+        redirectAttributes.addFlashAttribute("successMessage", "성공적으로 수정 되었습니다.");
         return "redirect:/posts/my-page";
     }
 
