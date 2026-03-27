@@ -5,6 +5,7 @@
     <style>
         .container { max-width: 560px; }
         .list-group-item { cursor: pointer; }
+        .alert { margin-top: 20px; }
     </style>
     <link th:href="@{/css/bootstrap.min.css}"
           href="../css/bootstrap.min.css" rel="stylesheet">
@@ -12,6 +13,11 @@
 <body>
 
 <div class="container">
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong th:text="${successMessage}">성공 메시지</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 
     <div class="py-5 text-center">
         <h2 th:if="${loginMember}" th:text="${loginMember.name} + '님의 페이지'">마이페이지</h2>
