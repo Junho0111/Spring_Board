@@ -30,9 +30,8 @@ public class FileStore {
      * @param multipartFiles 사용자가 업로드한 파일 리스트
      * @param fileType 파일 타입(이미지, 첨부)
      * @return 저장된 파일 정보(UploadFile) 리스트
-     * @throws IOException 파일 저장 중 오류 발생 시
      */
-    public List<UploadFile> storeFiles(List<MultipartFile> multipartFiles, FileTypeEnum fileType) throws IOException {
+    public List<UploadFile> storeFiles(List<MultipartFile> multipartFiles, FileTypeEnum fileType) {
         List<UploadFile> storeFileResult = new ArrayList<>();
 
         if (multipartFiles.isEmpty()) {
@@ -54,9 +53,8 @@ public class FileStore {
      * @param multipartFile 사용자가 업로드한 단일 파일
      * @param fileType 파일 타입(이미지, 첨부)
      * @return 저장된 파일의 정보(UploadFile)
-     * @throws IOException 파일 저장 중 오류 발생 시
      */
-    public UploadFile storeFile(MultipartFile multipartFile, FileTypeEnum fileType) throws IOException {
+    public UploadFile storeFile(MultipartFile multipartFile, FileTypeEnum fileType) {
         if (multipartFile.isEmpty()) {
             return null;
         }
@@ -64,7 +62,12 @@ public class FileStore {
         String originalFilename = multipartFile.getOriginalFilename();
         String storeFileName = createStoreFileName(originalFilename);
 
-        multipartFile.transferTo(new File(getFullPath(storeFileName)));
+        try {
+            multipartFile.transferTo(new File(getFullPath(storeFileName)));
+        } catch (IOException e) {
+            throw new FileStoreException("파일 저장에 실패했습니다. 파일명: " + originalFilename, e);
+        }
+
         return new UploadFile(originalFilename, storeFileName, fileType);
     }
 
