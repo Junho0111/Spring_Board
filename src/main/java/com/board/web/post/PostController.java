@@ -26,7 +26,6 @@ import org.springframework.http.ResponseEntity;
 import java.nio.charset.StandardCharsets;
 import org.springframework.web.util.UriUtils;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -161,7 +160,7 @@ public class PostController {
      * @return 유효성 검증 실패 시 게시물 생성 폼으로 돌아가고, 성공 시 생성된 게시물 상세 페이지로 리다이렉트
      */
     @PostMapping("/add")
-    public String addPost(@Validated @ModelAttribute("post") PostForm form, BindingResult bindingResult, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) throws IOException {
+    public String addPost(@Validated @ModelAttribute("post") PostForm form, BindingResult bindingResult, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
             return "posts/addForm";
@@ -232,7 +231,7 @@ public class PostController {
      * @return 유효성 검증 실패 시 게시물 편집 폼으로 돌아가고, 성공 시 편집된 게시물 상세 페이지로 리다이렉트
      */
     @PostMapping("/{postId}/edit")
-    public String edit(@PathVariable("postId") Long postId, @Validated @ModelAttribute("postForm") PostForm form, BindingResult bindingResult, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) throws IOException {
+    public String edit(@PathVariable("postId") Long postId, @Validated @ModelAttribute("postForm") PostForm form, BindingResult bindingResult, @SessionAttribute("loginMember") Member loginMember, RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
             return "posts/editForm";

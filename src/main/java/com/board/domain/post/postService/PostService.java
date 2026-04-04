@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -75,10 +74,9 @@ public class PostService {
      * @param attachFile 업로드된 단일 첨부파일
      * @param imageFiles 업로드된 다중 이미지 파일 목록
      * @return 데이터베이스에 저장되고 생성된 게시물의 고유 ID
-     * @throws IOException 파일 물리적 저장 중 입출력 오류가 발생할 경우
      */
     @Transactional
-    public Long savePost(Post post, MultipartFile attachFile, List<MultipartFile> imageFiles) throws IOException {
+    public Long savePost(Post post, MultipartFile attachFile, List<MultipartFile> imageFiles) {
         Post savedPost = postRepository.save(post);
         Long postId = savedPost.getId();
 
@@ -106,10 +104,9 @@ public class PostService {
      * @param content       수정할 내용
      * @param newAttachFile 새롭게 업로드된 첨부파일 (기존 첨부파일 완전 교체 목적)
      * @param newImageFiles 새롭게 업로드된 이미지 파일 목록 (기존 이미지파일들 완전 교체 목적)
-     * @throws IOException 파일 물리적 저장 중 입출력 오류가 발생할 경우
      */
     @Transactional
-    public void updatePost(Long postId, String title, String content, MultipartFile newAttachFile, List<MultipartFile> newImageFiles) throws IOException {
+    public void updatePost(Long postId, String title, String content, MultipartFile newAttachFile, List<MultipartFile> newImageFiles) {
         postRepository.update(postId, title, content);
 
         boolean hasNewAttach = fileChecker(newAttachFile);
