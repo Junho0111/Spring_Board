@@ -154,7 +154,12 @@ public class CommentRepositoryJdbc implements CommentRepository {
      */
     @Override
     public List<Comment> findAllByPostId(Long postId) {
-        String sql = "SELECT * FROM comment WHERE post_id = ?";
+        String sql = "SELECT " +
+                "c.id, c.post_id, c.parent_comment_id, m.name as author, c.author_id, c.content, c.created_at, c.updated_at " +
+                "FROM comment c " +
+                "JOIN member m ON c.author_id = m.id " +
+                "WHERE c.post_id = ? " +
+                "ORDER BY c.id";
         return jdbcTemplate.query(sql, commentRowMapper(), postId);
     }
 
