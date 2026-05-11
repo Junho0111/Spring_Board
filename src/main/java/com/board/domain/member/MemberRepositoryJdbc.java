@@ -5,7 +5,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
@@ -20,7 +23,7 @@ import java.util.*;
 @Repository
 public class MemberRepositoryJdbc implements MemberRepository {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert insertActor;
 
     /**
@@ -29,7 +32,7 @@ public class MemberRepositoryJdbc implements MemberRepository {
      * @param dataSource 데이터베이스 커넥션 풀
      */
     public MemberRepositoryJdbc(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         this.insertActor = new SimpleJdbcInsert(dataSource)
                 .withTableName("member")
                 .usingGeneratedKeyColumns("id");
@@ -43,11 +46,7 @@ public class MemberRepositoryJdbc implements MemberRepository {
      */
     @Override
     public Member save(Member member) {
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("login_id", member.getLoginId())
-                .addValue("name", member.getName())
-                .addValue("password", member.getPassword());
-
+        SqlParameterSource params = new BeanPropertySqlParameterSource(member);
         Number key = insertActor.executeAndReturnKey(params);
         member.setId(key.longValue());
 
@@ -62,9 +61,12 @@ public class MemberRepositoryJdbc implements MemberRepository {
      */
     @Override
     public Member findById(Long id) {
-        String sql = "SELECT * FROM member WHERE id = ?";
+        String sql = "SELECT * FROM member WHERE id = :id";
         try {
-            return jdbcTemplate.queryForObject(sql, memberRowMapper(), id);
+            MapSqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("id", id);
+
+            return jdbcTemplate.queryForObject(sql, params, memberRowMapper());
         } catch (EmptyResultDataAccessException e) {
             log.warn("MEMBER NOT FOUND [ID={}]", id);
             return null;
@@ -78,8 +80,11 @@ public class MemberRepositoryJdbc implements MemberRepository {
      */
     @Override
     public Optional<Member> findByLoginId(String loginId) {
-        String sql = "SELECT * FROM member WHERE login_id = ?";
-        List<Member> result = jdbcTemplate.query(sql, memberRowMapper(), loginId);
+        String sql = "SELECT * FROM member WHERE login_id = :loginId";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("loginId", loginId);
+        List<Member> result = jdbcTemplate.query(sql, params, memberRowMapper());
+
         return result.stream().findFirst();
     }
 
@@ -102,8 +107,14 @@ public class MemberRepositoryJdbc implements MemberRepository {
      */
     @Override
     public void update(Long memberId, String newName, String newPassword) {
-        String sql = "UPDATE member SET name = ?, password = ? WHERE id = ?";
-        int updateRow = jdbcTemplate.update(sql, newName, newPassword, memberId);
+        String sql = "UPDATE member SET name = :name, password = :password WHERE id = :id";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("name", newName)
+                .addValue("password", newPassword)
+                .addValue("id", memberId);
+
+        int updateRow = jdbcTemplate.update(sql, params);
 
         if (updateRow == 0) {
             log.error("UPDATE FAILED: ID {} NOT FOUND", memberId);
@@ -127,8 +138,10 @@ public class MemberRepositoryJdbc implements MemberRepository {
             throw new IllegalArgumentException("삭제 실패: 해당 ID의 회원이 존재하지 않습니다.");
         }
 
-        String sql = "DELETE FROM member WHERE id = ?";
-        jdbcTemplate.update(sql, id);
+        String sql = "DELETE FROM member WHERE id = :id";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", id);
+        jdbcTemplate.update(sql, params);
 
         log.info("DB DELETED [ID={}] - 연관된 게시물/댓글/파일 자동 삭제됨", id);
         return member;

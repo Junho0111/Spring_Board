@@ -3,9 +3,11 @@ package com.board.domain.comment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
@@ -22,7 +24,7 @@ import java.util.List;
 @Repository
 public class CommentRepositoryJdbc implements CommentRepository {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert insertActor;
 
     /**
@@ -30,7 +32,7 @@ public class CommentRepositoryJdbc implements CommentRepository {
      * @param dataSource 데이터베이스 커넥션 풀
      */
     public CommentRepositoryJdbc(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         this.insertActor = new SimpleJdbcInsert(dataSource)
                 .withTableName("comment")
                 .usingGeneratedKeyColumns("id");
@@ -47,15 +49,7 @@ public class CommentRepositoryJdbc implements CommentRepository {
         comment.setCreatedAt(LocalDateTime.now());
         comment.setUpdatedAt(LocalDateTime.now());
 
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("post_id", comment.getPostId())
-                .addValue("parent_comment_id", comment.getParentCommentId())
-                .addValue("author", comment.getAuthor())
-                .addValue("author_id", comment.getAuthorId())
-                .addValue("content", comment.getContent())
-                .addValue("created_at", comment.getCreatedAt())
-                .addValue("updated_at", comment.getUpdatedAt());
-
+        SqlParameterSource params = new BeanPropertySqlParameterSource(comment);
         Number key = insertActor.executeAndReturnKey(params);
         comment.setId(key.longValue());
 
@@ -71,8 +65,12 @@ public class CommentRepositoryJdbc implements CommentRepository {
      */
     @Override
     public void update(Long id, String content) {
-        String sql = "UPDATE comment SET content = ?, updated_at = ? WHERE id = ?";
-        int updated = jdbcTemplate.update(sql, content, LocalDateTime.now(), id);
+        String sql = "UPDATE comment SET content = :content, updated_at = :updatedAt WHERE id = :id";
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("content", content)
+                .addValue("updatedAt", LocalDateTime.now())
+                .addValue("id", id);
+        int updated = jdbcTemplate.update(sql, params);
 
         if (updated == 0) {
             log.error("UPDATE FAILED: ID {} NOT FOUND", id);
@@ -87,8 +85,11 @@ public class CommentRepositoryJdbc implements CommentRepository {
      */
     @Override
     public void updateAuthor(Long id, String author) {
-        String sql = "UPDATE comment SET author = ? WHERE id = ?";
-        jdbcTemplate.update(sql, author, id);
+        String sql = "UPDATE comment SET author = :author WHERE id = :id";
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("author", author)
+                .addValue("id", id);
+        jdbcTemplate.update(sql, params);
     }
 
     /**
@@ -100,8 +101,9 @@ public class CommentRepositoryJdbc implements CommentRepository {
     public Comment delete(Long id) {
         Comment comment = findById(id);
         if (comment != null) {
-            String sql = "DELETE FROM comment WHERE id = ?";
-            jdbcTemplate.update(sql, id);
+            String sql = "DELETE FROM comment WHERE id = :id";
+            SqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
+            jdbcTemplate.update(sql, params);
             log.info("DB DELETED [ID={}]", id);
         }
         return comment;
@@ -138,9 +140,12 @@ public class CommentRepositoryJdbc implements CommentRepository {
      */
     @Override
     public Comment findById(Long id) {
-        String sql = "SELECT * FROM comment WHERE id = ?";
+        String sql = "SELECT * FROM comment WHERE id = :id";
         try {
-            return jdbcTemplate.queryForObject(sql, commentRowMapper(), id);
+            SqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("id", id);
+
+            return jdbcTemplate.queryForObject(sql, params, commentRowMapper());
         } catch (EmptyResultDataAccessException e) {
             log.warn("COMMENT NOT FOUND [ID={}]", id);
             return null;
@@ -158,9 +163,13 @@ public class CommentRepositoryJdbc implements CommentRepository {
                 "c.id, c.post_id, c.parent_comment_id, m.name as author, c.author_id, c.content, c.created_at, c.updated_at " +
                 "FROM comment c " +
                 "JOIN member m ON c.author_id = m.id " +
-                "WHERE c.post_id = ? " +
+                "WHERE c.post_id = :postId " +
                 "ORDER BY c.id";
-        return jdbcTemplate.query(sql, commentRowMapper(), postId);
+
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("postId", postId);
+
+        return jdbcTemplate.query(sql, params, commentRowMapper());
     }
 
     /**
@@ -169,8 +178,10 @@ public class CommentRepositoryJdbc implements CommentRepository {
      */
     @Override
     public void deleteByPostId(Long postId) {
-        String sql = "DELETE FROM comment WHERE post_id = ?";
-        jdbcTemplate.update(sql, postId);
+        String sql = "DELETE FROM comment WHERE post_id = :postId";
+
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue("postId", postId);
+        jdbcTemplate.update(sql, params);
         log.info("ALL COMMENTS DELETED FOR POST [PostID={}]", postId);
     }
 
@@ -193,8 +204,10 @@ public class CommentRepositoryJdbc implements CommentRepository {
      * @param descendantIds 발견된 자손 ID들을 수집할 리스트
      */
     private void findDescendants(Long parentId, List<Long> descendantIds) {
-        String sql = "SELECT id FROM comment WHERE parent_comment_id = ?";
-        List<Long> directChildrenIds = jdbcTemplate.queryForList(sql, Long.class, parentId);
+        String sql = "SELECT id FROM comment WHERE parent_comment_id = :parentId";
+
+        SqlParameterSource params = new MapSqlParameterSource().addValue("parentId", parentId);
+        List<Long> directChildrenIds = jdbcTemplate.queryForList(sql, params, Long.class);
 
         for (Long childId : directChildrenIds) {
             descendantIds.add(childId);

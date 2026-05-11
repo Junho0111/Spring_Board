@@ -7,7 +7,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +26,7 @@ import java.util.stream.Collectors;
 @Repository
 public class PostRepositoryJdbc implements PostRepository {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert insertActor;
 
     /**
@@ -31,7 +34,7 @@ public class PostRepositoryJdbc implements PostRepository {
      * @param dataSource 데이터베이스 커넥션 풀
      */
     public PostRepositoryJdbc(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         this.insertActor = new SimpleJdbcInsert(dataSource)
                 .withTableName("post")
                 .usingGeneratedKeyColumns("id");
@@ -46,12 +49,7 @@ public class PostRepositoryJdbc implements PostRepository {
      */
     @Override
     public Post save(Post post) {
-        MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("title", post.getTitle())
-                .addValue("content", post.getContent())
-                .addValue("author", post.getAuthor())
-                .addValue("author_id", post.getAuthorId());
-
+        SqlParameterSource params = new BeanPropertySqlParameterSource(post);
         Number key = insertActor.executeAndReturnKey(params);
         post.setId(key.longValue());
 
@@ -68,8 +66,14 @@ public class PostRepositoryJdbc implements PostRepository {
      */
     @Override
     public void update(Long id, String title, String content) {
-        String sql = "update post set title = ?, content = ? where id = ?";
-        int updateRow = jdbcTemplate.update(sql, title, content, id);
+        String sql = "update post set title = :title, content = :content where id = :id";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("title", title)
+                .addValue("content", content)
+                .addValue("id", id);
+
+        int updateRow = jdbcTemplate.update(sql, params);
 
         if (updateRow == 0) {
             log.error("UPDATE FAILED: ID {} NOT FOUND", id);
@@ -86,8 +90,12 @@ public class PostRepositoryJdbc implements PostRepository {
      */
     @Override
     public void updateAuthor(Long id, String author) {
-        String sql = "update post set author = ? where id = ?";
-        jdbcTemplate.update(sql, author, id);
+        String sql = "update post set author = :author where id = :id";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("author", author)
+                .addValue("id", id);
+        jdbcTemplate.update(sql, params);
         log.info("AUTHOR UPDATED [ID={}, Author={}]", id, author);
     }
 
@@ -105,8 +113,10 @@ public class PostRepositoryJdbc implements PostRepository {
             throw new IllegalArgumentException("삭제 실패: 해당 ID(" + id + ")의 게시물이 존재하지 않습니다.");
         }
 
-        String sql = "delete from post where id = ?";
-        jdbcTemplate.update(sql, id);
+        String sql = "delete from post where id = :id";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", id);
+        jdbcTemplate.update(sql, params);
 
         log.info("DELETED [ID={}, Title={}]", id, deletePost.getTitle());
         return deletePost;
@@ -136,25 +146,26 @@ public class PostRepositoryJdbc implements PostRepository {
     public List<Post> postSearchFindAll(String type, String keyword, int currentPage, int postsPerPage) {
         int offset = (currentPage - 1) * postsPerPage;
         String sql = "select * from post where 1=1";
-        List<Object> params = new ArrayList<>();
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("postsPerPage", postsPerPage)
+                .addValue("offset", offset);
 
         if (keyword != null && !keyword.isBlank()) {
             if ("author".equals(type)) {
-                sql += " and author like ?";
-                params.add("%" + keyword + "%");
+                sql += " and author like :keyword";
+                params.addValue("keyword", "%" + keyword + "%");
             }
 
             if ("title".equals(type)) {
-                sql += " and title like ?";
-                params.add("%" + keyword + "%");
+                sql += " and title like :keyword";
+                params.addValue("keyword", "%" + keyword + "%");
             }
         }
 
-        sql += " order by id desc limit ? offset ?";
-        params.add(postsPerPage);
-        params.add(offset);
+        sql += " order by id desc limit :postsPerPage offset :offset";
 
-        return jdbcTemplate.query(sql, postRowMapper(), params.toArray());
+        return jdbcTemplate.query(sql, params, postRowMapper());
     }
 
     /**
@@ -167,20 +178,21 @@ public class PostRepositoryJdbc implements PostRepository {
     @Override
     public int postSearchCount(String type, String keyword) {
         String sql = "select count(*) from post where 1=1";
-        List<Object> params = new ArrayList<>();
 
+        MapSqlParameterSource params = new MapSqlParameterSource();
         if (keyword != null && !keyword.isBlank()) {
             if ("author".equals(type)) {
-                sql += " and author like ?";
-                params.add("%" + keyword + "%");
+                sql += " and author like :keyword";
+                params.addValue("keyword", "%" + keyword + "%");
             }
 
             if ("title".equals(type)) {
-                sql += " and title like ?";
-                params.add("%" + keyword + "%");
+                sql += " and title like :keyword";
+                params.addValue("keyword", "%" + keyword + "%");
             }
         }
-        Integer postCount = jdbcTemplate.queryForObject(sql, Integer.class, params.toArray());
+
+        Integer postCount = jdbcTemplate.queryForObject(sql, params, Integer.class);
 
         //null이면 0 아니면 postCount  /  return 할때 오토언박싱->postCount.intValue()
         return Objects.requireNonNullElse(postCount, 0);
@@ -195,9 +207,11 @@ public class PostRepositoryJdbc implements PostRepository {
      */
     @Override
     public Post findById(Long id) {
-        String sql = "select * from post where id = ?";
+        String sql = "select * from post where id = :id";
         try {
-            Post post = jdbcTemplate.queryForObject(sql, postRowMapper(), id);
+            MapSqlParameterSource parmas = new MapSqlParameterSource()
+                    .addValue("id", id);
+            Post post = jdbcTemplate.queryForObject(sql, parmas, postRowMapper());
             if (post != null) {
                 fillFiles(post);
             }
@@ -211,8 +225,11 @@ public class PostRepositoryJdbc implements PostRepository {
      * 게시글 객체에 연관된 첨부파일과 이미지 파일들을 DB에서 조회하여 채워넣습니다.
      */
     private void fillFiles(Post post) {
-        String sql = "select * from upload_file where post_id = ?";
-        List<UploadFile> allFiles = jdbcTemplate.query(sql, fileRowMapper(), post.getId());
+        String sql = "select * from upload_file where post_id = :id";
+
+
+        SqlParameterSource params = new BeanPropertySqlParameterSource(post);
+        List<UploadFile> allFiles = jdbcTemplate.query(sql, params, fileRowMapper());
 
         allFiles.stream()
                 .filter(f -> f.getFileType() == FileTypeEnum.ATTACHED)
@@ -234,8 +251,9 @@ public class PostRepositoryJdbc implements PostRepository {
      */
     @Override
     public List<Post> findByMemberId(Long memberId) {
-        String sql = "select * from post where author_id = ?";
-        return jdbcTemplate.query(sql, postRowMapper(), memberId);
+        String sql = "select * from post where author_id = :authorId";
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue("authorId", memberId);
+        return jdbcTemplate.query(sql, params, postRowMapper());
     }
 
     private RowMapper<Post> postRowMapper() {

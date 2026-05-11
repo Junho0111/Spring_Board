@@ -1,8 +1,8 @@
 package com.board.domain.uploadfile;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
@@ -12,11 +12,11 @@ import javax.sql.DataSource;
 @Repository
 public class UploadFileRepositoryJdbc {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert insertActor;
 
-    public UploadFileRepositoryJdbc(JdbcTemplate jdbcTemplate, DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    public UploadFileRepositoryJdbc(DataSource dataSource) {
+        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
         this.insertActor = new SimpleJdbcInsert(dataSource)
                 .withTableName("upload_file")
                 .usingGeneratedKeyColumns("id");
@@ -39,8 +39,10 @@ public class UploadFileRepositoryJdbc {
     }
 
     public void deleteByPostId(Long postId) {
-        String sql = "delete from upload_file where post_id = ?";
-        jdbcTemplate.update(sql, postId);
+        String sql = "delete from upload_file where post_id = :postId";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("postId", postId);
+        jdbcTemplate.update(sql, params);
         log.info("FILES DELETED [PostID={}]", postId);
     }
 }
