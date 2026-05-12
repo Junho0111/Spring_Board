@@ -20,7 +20,7 @@ import java.util.*;
  * DB의 제약 조건(CASCADE 등)을 활용하여 연관 데이터를 관리합니다.
  */
 @Slf4j
-@Repository
+//@Repository
 public class MemberRepositoryJdbc implements MemberRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;

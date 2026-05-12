@@ -21,7 +21,7 @@ import java.util.List;
  * 대댓글(계층형) 구조를 지원하며, SimpleJdbcInsert를 통해 데이터를 저장합니다.
  */
 @Slf4j
-@Repository
+//@Repository
 public class CommentRepositoryJdbc implements CommentRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;

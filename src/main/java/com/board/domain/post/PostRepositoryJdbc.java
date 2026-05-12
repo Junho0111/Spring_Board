@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * {@link PostRepository} 인터페이스를 구현합니다.
  */
 @Slf4j
-@Repository
+//@Repository
 public class PostRepositoryJdbc implements PostRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;

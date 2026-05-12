@@ -4,7 +4,7 @@ import com.board.domain.post.Post;
 import com.board.domain.post.PostRepository;
 import com.board.domain.uploadfile.FileTypeEnum;
 import com.board.domain.uploadfile.UploadFile;
-import com.board.domain.uploadfile.UploadFileRepositoryJdbc;
+import com.board.domain.uploadfile.UploadFileRepository;
 import com.board.util.file.FileStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.util.List;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final UploadFileRepositoryJdbc uploadFileRepository;
+    private final UploadFileRepository uploadFileRepository;
     private final FileStore fileStore;
 
     /**
