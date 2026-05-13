@@ -1,6 +1,6 @@
 package com.board.web.mypage;
 
-import com.board.domain.comment.CommentRepository;
+import com.board.domain.login.Kakao.KakaoService;
 import com.board.domain.member.Member;
 import com.board.domain.member.MemberRepository;
 import com.board.domain.member.memberService.MemberService;
@@ -8,7 +8,6 @@ import com.board.domain.post.Post;
 import com.board.domain.post.PostRepository;
 import com.board.web.mypage.form.MemberEditForm;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +30,7 @@ public class MyPageController {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final MemberService memberService;
+    private final KakaoService kakaoService;
 
     @GetMapping
     public String myPageHome(@SessionAttribute("loginMember") Member loginMember, Model model) {
@@ -76,8 +76,23 @@ public class MyPageController {
         return "redirect:/posts/my-page";
     }
 
+    /**
+     * 회원 탈퇴 요청을 처리합니다.
+     * 카카오로 가입한 회원의 경우, 카카오 서버와의 연동을 해제(Unlink)한 후 로컬 DB에서 회원 정보를 삭제합니다.
+     * @param loginMember 현재 로그인된 회원 정보
+     * @param request HTTP 요청 객체 (세션 무효화용)
+     * @return 홈 화면으로 리다이렉트
+     */
     @PostMapping("/delete")
     public String delete(@SessionAttribute("loginMember") Member loginMember, HttpServletRequest request) {
+        if (loginMember.getKakaoId() != null) {
+            try {
+                kakaoService.unlink(loginMember.getKakaoId());
+            } catch (Exception e) {
+                log.error("Kakao unlink failed but proceeding with account deletion", e);
+            }
+        }
+
         memberService.deleteMember(loginMember.getId());
 
         HttpSession session = request.getSession(false);
@@ -88,4 +103,5 @@ public class MyPageController {
 
         return "redirect:/";
     }
+
 }

@@ -6,10 +6,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.ui.Model;
 
 /**
  * 로그인 요청을 처리하는 컨트롤러.
@@ -20,16 +22,29 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class LoginController {
 
-    /** 로그인 서비스 의존성 주입 */
     private final LoginService loginService;
+
+    @Value("${kakao.client.id}")
+    private String kakaoClientId;
+
+    @Value("${kakao.redirect.uri}")
+    private String kakaoRedirectUri;
 
     /**
      * 로그인 폼 뷰를 반환합니다.
+     * 카카오 로그인 연동을 위해 인증 서버로 이동할 URL을 생성하여 모델에 담습니다.
+     * prompt=login을 추가하여 항상 계정 선택이 가능하게 하고, state=login으로 로그인 의도를 전달합니다.
+     *
      * @param loginForm 로그인 폼 데이터 바인딩할 객체
+     * @param model 뷰에 데이터를 전달하기 위한 모델 객체
      * @return 로그인 폼 뷰 이름
      */
     @GetMapping("/login")
-    public String login(@ModelAttribute("loginForm") LoginForm loginForm ) {
+    public String login(@ModelAttribute("loginForm") LoginForm loginForm, Model model) {
+        String kakaoLoginUrl = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id="
+                + kakaoClientId + "&redirect_uri=" + kakaoRedirectUri + "&prompt=login&state=login";
+        model.addAttribute("kakaoLoginUrl", kakaoLoginUrl);
+
         return "login/loginForm";
     }
 

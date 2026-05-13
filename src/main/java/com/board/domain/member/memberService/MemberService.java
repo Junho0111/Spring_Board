@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 회원 관련 비즈니스 로직을 처리하는 서비스 클래스입니다.
@@ -87,5 +88,15 @@ public class MemberService {
      */
     public Member findMemberById (Long id) {
         return memberRepository.findById(id);
+    }
+
+
+    /**
+     * 주어진 kakaoId로 회원을 조회합니다.
+     * @param kakaoId 조회할 회원의 카카오 고유 식별자
+     * @return 조회된 회원 객체
+     */
+    public Optional<Member> findMemberByKakaoId (String kakaoId) {
+        return memberRepository.findByKakaoId(kakaoId);
     }
 }
