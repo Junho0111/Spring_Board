@@ -39,6 +39,13 @@ public interface MemberRepository {
     public Optional<Member> findByKakaoId(String kakaoId);
 
     /**
+     * 네이버 ID로 회원을 찾습니다.
+     * @param naverId 찾을 회원의 네이버 고유 ID
+     * @return 찾아낸 회원 객체를 담은 Optional. 없으면 빈 Optional을 반환합니다.
+     */
+    public Optional<Member> findByNaverId(String naverId);
+
+    /**
      * 모든 회원을 찾아 리스트로 반환합니다.
      * @return 모든 회원 정보를 담은 리스트
      */

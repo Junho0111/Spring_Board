@@ -41,6 +41,13 @@ public interface MemberRepositoryMybatis {
     Optional<Member> findByKakaoId(@Param("kakaoId") String kakaoId);
 
     /**
+     * 네이버 ID를 통한 회원 단건 조회
+     * @param naverId 조회할 네이버 고유 ID
+     * @return 조회된 회원 객체 (Optional)
+     */
+    Optional<Member> findByNaverId(@Param("naverId") String naverId);
+
+    /**
      * 모든 회원을 조회합니다.
      * @return 회원 리스트
      */

@@ -28,6 +28,9 @@ public class Member {
     /**카카오 고유 식별자 (OAuth 연동 시 사용)*/
     private String kakaoId;
 
+    /**네이버 고유 식별자 (OAuth 연동 시 사용)*/
+    private String naverId;
+
 
     /**
      * 기본 생성자
@@ -42,16 +45,24 @@ public class Member {
     }
 
     /**
-     * 카카오 연동 전용 생성자
-     * @param loginId 로그인 아이디 (임시 또는 카카오 식별자 활용)
-     * @param name 이름 (카카오 닉네임)
+     * 외부 소셜 로그인 공통 생성자
+     * @param loginId 로그인 아이디
+     * @param name 이름
      * @param password 비밀번호 (사용 안 함)
-     * @param kakaoId 카카오 고유 식별자
+     * @param provider 서비스 제공자 ("kakao", "naver" 등)
+     * @param socialId 해당 서비스의 고유 식별자
      */
-    public Member(String loginId, String name, String password, String kakaoId) {
+    public Member(String loginId, String name, String password, String provider, String socialId) {
         this.loginId = loginId;
         this.name = name;
         this.password = password;
-        this.kakaoId = kakaoId;
+
+        if ("kakao".equals(provider)) {
+            this.kakaoId = socialId;
+        }
+
+        if ("naver".equals(provider)) {
+            this.naverId = socialId;
+        }
     }
 }

@@ -99,4 +99,13 @@ public class MemberService {
     public Optional<Member> findMemberByKakaoId (String kakaoId) {
         return memberRepository.findByKakaoId(kakaoId);
     }
+
+    /**
+     * 주어진 naverId로 회원을 조회합니다.
+     * @param naverId 조회할 회원의 네이버 고유 식별자
+     * @return 조회된 회원 객체
+     */
+    public Optional<Member> findMemberByNaverId (String naverId) {
+        return memberRepository.findByNaverId(naverId);
+    }
 }

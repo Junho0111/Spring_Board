@@ -49,6 +49,13 @@ public class MemberRepositoryImpl implements MemberRepository {
     }
 
     @Override
+    public Optional<Member> findByNaverId(String naverId) {
+        return findAll().stream()
+                .filter(m -> naverId.equals(m.getNaverId()))
+                .findFirst();
+    }
+
+    @Override
     public List<Member> findAll() {
         return new ArrayList<>(store.values());
     }
