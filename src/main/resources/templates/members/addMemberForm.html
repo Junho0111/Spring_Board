@@ -20,12 +20,12 @@
 
     <form action="" th:action th:object="${member}" method="post">
 
-        <!-- 카카오 중복 가입 에러 메시지 표시 -->
+        <!-- OAuth 중복 가입 에러 메시지 표시 -->
         <div th:if="${param.alreadyRegistered}">
-            <p class="field-error text-center mb-3">이미 카카오 계정으로 가입된 회원입니다. 로그인해 주세요.</p>
+            <p class="field-error text-center mb-3">이미 연동된 계정으로 가입된 회원입니다. 로그인해 주세요.</p>
         </div>
 
-        <!-- 카카오 미가입 계정 로그인 시도 에러 메시지 표시 -->
+        <!-- OAuth 미가입 계정 로그인 시도 에러 메시지 표시 -->
         <div th:if="${param.notRegistered}">
             <p class="field-error text-center mb-3">존재하지 않는 계정입니다. 회원가입을 먼저 진행해 주세요.</p>
         </div>
@@ -77,6 +77,13 @@
             <div class="col">
                 <a th:href="${kakaoLoginUrl}" class="w-100 btn btn-warning btn-lg">
                     카카오로 회원가입
+                </a>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col">
+                <a th:href="${naverLoginUrl}" class="w-100 btn btn-success btn-lg">
+                    네이버로 회원가입
                 </a>
             </div>
         </div>

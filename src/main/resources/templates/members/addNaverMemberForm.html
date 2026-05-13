@@ -11,13 +11,13 @@
 <body>
 <div class="container">
     <div class="py-5 text-center">
-        <h2>카카오 회원가입</h2>
+        <h2>네이버 회원가입</h2>
         <p class="lead">서비스에서 사용할 이름을 입력해주세요.</p>
     </div>
 
-    <form th:action="@{/members/add/kakao}" th:object="${kakaoJoinForm}" method="post">
-        <!-- 카카오 고유 ID를 서버로 전송하기 위해 hidden 필드 사용 -->
-        <input type="hidden" th:field="*{kakaoId}">
+    <form th:action="@{/members/add/naver}" th:object="${naverJoinForm}" method="post">
+        <!-- 네이버 고유 ID를 서버로 전송하기 위해 hidden 필드 사용 -->
+        <input type="hidden" th:field="*{naverId}">
 
         <div th:if="${#fields.hasGlobalErrors()}">
             <p class="field-error" th:each="err : ${#fields.globalErrors()}" th:text="${err}">전체 오류 메시지</p>
