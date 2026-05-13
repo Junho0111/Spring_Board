@@ -1,6 +1,7 @@
 package com.board.web.mypage;
 
 import com.board.domain.login.Kakao.KakaoService;
+import com.board.domain.login.Naver.NaverService;
 import com.board.domain.member.Member;
 import com.board.domain.member.MemberRepository;
 import com.board.domain.member.memberService.MemberService;
@@ -31,6 +32,7 @@ public class MyPageController {
     private final MemberRepository memberRepository;
     private final MemberService memberService;
     private final KakaoService kakaoService;
+    private final NaverService naverService;
 
     @GetMapping
     public String myPageHome(@SessionAttribute("loginMember") Member loginMember, Model model) {
@@ -91,6 +93,12 @@ public class MyPageController {
             } catch (Exception e) {
                 log.error("Kakao unlink failed but proceeding with account deletion", e);
             }
+        }
+
+        if (loginMember.getNaverId() != null) {
+            // 네이버 연동 해제는 일반적으로 액세스 토큰이 필요하므로 여기서는 로그만 남김
+            // 추가로 네이버 로그인 가입 url이 auth_type=reauthenticate 이므로 매번 검사함(돌려막기지만 결과은 같음)
+            log.info("Naver account deletion: [naverId={}]", loginMember.getNaverId());
         }
 
         memberService.deleteMember(loginMember.getId());

@@ -2,6 +2,8 @@ package com.board.web.login;
 
 import com.board.domain.login.Kakao.KakaoService;
 import com.board.domain.login.Kakao.Dto.KakaoUserInfoResponse;
+import com.board.domain.login.Naver.Dto.NaverUserInfoResponse;
+import com.board.domain.login.Naver.NaverService;
 import com.board.domain.member.Member;
 import com.board.domain.member.memberService.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +28,7 @@ import static java.lang.String.valueOf;
 public class OAuthController {
 
     private final KakaoService kakaoService;
+    private final NaverService naverService;
     private final MemberService memberService;
 
     /**
@@ -66,6 +69,50 @@ public class OAuthController {
             HttpSession session = request.getSession();
             session.setAttribute("loginMember", member);
             log.info("Kakao Login SUCCESS: [Name={}]", member.getName());
+
+            return "redirect:/";
+        }
+
+        return "redirect:/members/add?notRegistered";
+    }
+
+    /**
+     * 네이버 로그인 인증 완료 후 호출되는 콜백 메서드입니다.
+     * @param code 네이버 인증 서버에서 전달한 인가 코드
+     * @param state 사용자의 요청 의도 및 상태 토큰
+     * @param request HTTP 요청 객체 (세션 생성용)
+     * @return 의도 및 가입 여부에 따른 다음 리다이렉트 주소
+     */
+    @GetMapping("/oauth/naver/callback")
+    public String naverCallback(@RequestParam String code, @RequestParam String state, HttpServletRequest request) {
+        log.info("Naver callback code: {}, state: {}", code, state);
+
+        String accessToken = naverService.getAccessToken(code, state);
+        if (accessToken == null) {
+            return "redirect:/login?error";
+        }
+
+        NaverUserInfoResponse userInfo = naverService.getUserInfo(accessToken);
+        String naverId = userInfo.response().id();
+
+        Optional<Member> findMember = memberService.findMemberByNaverId(naverId);
+
+        // [회원가입 모드]
+        if ("signup".equals(state)) {
+            if (findMember.isPresent()) {
+                log.info("[Already registered Naver user] Redirecting to signup form.");
+                return "redirect:/members/add?alreadyRegistered";
+            }
+
+            return "redirect:/members/add/naver?naverId=" + naverId;
+        }
+
+        // [로그인 모드] 이미 계정이 존재하는 경우 즉시 로그인 처리
+        if (findMember.isPresent()) {
+            Member member = findMember.get();
+            HttpSession session = request.getSession();
+            session.setAttribute("loginMember", member);
+            log.info("Naver Login SUCCESS: [Name={}]", member.getName());
 
             return "redirect:/";
         }

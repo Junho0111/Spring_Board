@@ -30,10 +30,17 @@ public class LoginController {
     @Value("${kakao.redirect.uri}")
     private String kakaoRedirectUri;
 
+    @Value("${naver.client.id}")
+    private String naverClientId;
+
+    @Value("${naver.redirect.uri}")
+    private String naverRedirectUri;
+
     /**
      * 로그인 폼 뷰를 반환합니다.
-     * 카카오 로그인 연동을 위해 인증 서버로 이동할 URL을 생성하여 모델에 담습니다.
-     * prompt=login을 추가하여 항상 계정 선택이 가능하게 하고, state=login으로 로그인 의도를 전달합니다.
+     * 카카오 및 네이버 로그인 연동을 위해 인증 서버로 이동할 URL을 생성하여 모델에 담습니다.
+     * prompt=login (카카오) 및 auth_type=reprompt (네이버)를 추가하여 항상 계정 선택이 가능하게 합니다.
+     * state 파라미터로 로그인 의도를 전달합니다.
      *
      * @param loginForm 로그인 폼 데이터 바인딩할 객체
      * @param model 뷰에 데이터를 전달하기 위한 모델 객체
@@ -44,6 +51,10 @@ public class LoginController {
         String kakaoLoginUrl = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id="
                 + kakaoClientId + "&redirect_uri=" + kakaoRedirectUri + "&prompt=login&state=login";
         model.addAttribute("kakaoLoginUrl", kakaoLoginUrl);
+
+        String naverLoginUrl = "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id="
+                + naverClientId + "&redirect_uri=" + naverRedirectUri + "&state=login&auth_type=reauthenticate";
+        model.addAttribute("naverLoginUrl", naverLoginUrl);
 
         return "login/loginForm";
     }

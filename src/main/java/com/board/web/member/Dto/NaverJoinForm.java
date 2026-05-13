@@ -5,16 +5,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 카카오 회원가입 시 사용자로부터 추가 정보를 입력받기 위한 폼 객체입니다.
- * 카카오 인증 후 전달받은 고유 식별자와 사용자가 직접 입력한 이름을 관리합니다.
+ * 네이버 회원가입 전용 폼 객체입니다.
  */
 @Getter
 @Setter
-public class KakaoJoinForm {
+public class NaverJoinForm {
 
-    /** 카카오 고유 식별자 (hidden 필드로 유지) */
+    /** 네이버 고유 식별자 (hidden 필드로 유지) */
     @NotEmpty
-    private String kakaoId;
+    private String naverId;
 
     /** 서비스 내에서 사용할 사용자의 이름(닉네임) */
     @NotEmpty
