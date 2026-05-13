@@ -88,6 +88,16 @@ public class MemberRepositoryJdbc implements MemberRepository {
         return result.stream().findFirst();
     }
 
+    @Override
+    public Optional<Member> findByKakaoId(String kakaoId) {
+        String sql = "SELECT * FROM member WHERE kakao_id = :kakaoId";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("kakaoId", kakaoId);
+        List<Member> result = jdbcTemplate.query(sql, params, memberRowMapper());
+
+        return result.stream().findFirst();
+    }
+
     /**
      * 데이터베이스에 저장된 모든 회원 목록을 조회합니다.
      * @return 전체 회원 리스트

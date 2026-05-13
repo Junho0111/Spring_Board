@@ -42,6 +42,13 @@ public class MemberRepositoryImpl implements MemberRepository {
     }
 
     @Override
+    public Optional<Member> findByKakaoId(String kakaoId) {
+        return findAll().stream()
+                .filter(m -> kakaoId.equals(m.getKakaoId()))
+                .findFirst();
+    }
+
+    @Override
     public List<Member> findAll() {
         return new ArrayList<>(store.values());
     }

@@ -34,6 +34,13 @@ public interface MemberRepositoryMybatis {
     Optional<Member> findByLoginId(String loginId);
 
     /**
+     * 카카오 ID를 통한 회원 단건 조회
+     * @param kakaoId 조회할 카카오 고유 ID
+     * @return 조회된 회원 객체 (Optional)
+     */
+    Optional<Member> findByKakaoId(@Param("kakaoId") String kakaoId);
+
+    /**
      * 모든 회원을 조회합니다.
      * @return 회원 리스트
      */

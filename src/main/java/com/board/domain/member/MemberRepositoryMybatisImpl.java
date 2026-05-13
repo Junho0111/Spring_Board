@@ -52,6 +52,16 @@ public class MemberRepositoryMybatisImpl implements MemberRepository {
     }
 
     /**
+     * 카카오 고유 식별자(kakaoId)를 기준으로 회원 정보를 조회합니다.
+     * @param kakaoId 조회할 카카오 고유 ID
+     * @return Optional 형태의 회원 객체 (부재 시 빈 Optional 반환)
+     */
+    @Override
+    public Optional<Member> findByKakaoId(String kakaoId) {
+        return memberMapper.findByKakaoId(kakaoId);
+    }
+
+    /**
      * 데이터베이스에 저장된 모든 회원 목록을 조회합니다.
      * @return 전체 회원 리스트
      */

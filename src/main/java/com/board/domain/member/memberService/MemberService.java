@@ -8,13 +8,16 @@ import com.board.domain.post.Post;
 import com.board.domain.post.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 /**
  * 회원 관련 비즈니스 로직을 처리하는 서비스 클래스입니다.
+ * 모든 데이터 변경 작업은 트랜잭션 내에서 처리됩니다.
  */
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class MemberService {
 
